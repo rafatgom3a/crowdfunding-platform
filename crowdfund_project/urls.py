@@ -7,10 +7,9 @@ from django.core.mail import send_mail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('users.urls', namespace='users')),
+    path('accounts/', include('users.urls', namespace='accounts')),  # Change namespace to 'accounts'
     path('users/', include('users.urls', namespace='users')),
     path('', include('projects.urls', namespace='projects')),
-   # path('', include('projects.urls', namespace='projects')), # Assuming you have a projects app for homepage
     # Add other app URLs here
 ]
 

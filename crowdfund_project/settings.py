@@ -35,14 +35,16 @@ DEBUG = config('DEBUG', cast=bool)
 # Email Configuration
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # Keep your original SMTP setting
 # For debugging, you can temporarily use:
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # This will print emails to the console
+# For debugging email issues
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com') 
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') 
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
+# Comment out your SMTP settings temporarily
+# EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+# EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+# EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 
 ALLOWED_HOSTS = []

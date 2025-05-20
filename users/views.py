@@ -37,7 +37,8 @@ def send_activation_email(request, user):
         email.send()
     except Exception as e:
         # Log the error e
-        messages.error(request, "Error sending activation email. Please contact support.")
+        print(f"Email sending error: {str(e)}")  # Add this line to print the error
+        messages.error(request, f"Error sending activation email: {str(e)}")
         return False
     return True
 
