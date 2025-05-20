@@ -9,6 +9,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.conf import settings
 
 from .models import User, UserProfile
 from .forms import (
@@ -23,24 +24,39 @@ from django.contrib.auth import views as auth_views
 def send_activation_email(request, user):
     current_site = get_current_site(request)
     mail_subject = 'Activate your Crowdfunding account'
-    # It's good practice to create an HTML template for the email body
+    
+    # Get protocol (http or https)
+    protocol = 'https' if request.is_secure() else 'http'
+    
+    # Render the email template with context
     message = render_to_string('users/email/account_activation_email.html', {
         'user': user,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': user.activation_token,
+        'protocol': protocol,
     })
+    
     to_email = user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    email.content_subtype = "html"
+    
+    # Use Django's send_mail function instead of EmailMessage
     try:
-        email.send()
+        from django.core.mail import send_mail
+        result = send_mail(
+            subject=mail_subject,
+            message='',  # Empty plain text message
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[to_email],
+            html_message=message,  # HTML content
+            fail_silently=False,
+        )
+        print(f"Email sent successfully to {to_email}, result: {result}")
+        return True
     except Exception as e:
-        # Log the error e
-        print(f"Email sending error: {str(e)}")  # Add this line to print the error
+        # Log the error for debugging
+        print(f"Email sending error: {str(e)}")
         messages.error(request, f"Error sending activation email: {str(e)}")
         return False
-    return True
 
 # --- Registration View ---
 def register_view(request):
@@ -74,7 +90,9 @@ def activate_view(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        print(f"Found user: {user.email}, token from URL: {token}, user token: {user.activation_token}")
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        print(f"Error finding user: {str(e)}")
         user = None
 
     if user is not None and str(user.activation_token) == token:
@@ -91,6 +109,8 @@ def activate_view(request, uidb64, token):
             # Optionally, provide a way to resend activation link
             return redirect('users:register') # Or a specific page for expired links
     else:
+        if user:
+            print(f"Token mismatch: URL token '{token}' != user token '{user.activation_token}'")
         messages.error(request, 'Activation link is invalid!')
         return redirect('users:register') # Or home page
 
