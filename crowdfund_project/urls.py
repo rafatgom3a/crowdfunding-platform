@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('users.urls', namespace='accounts')),  # Change namespace to 'accounts'
     path('users/', include('users.urls', namespace='users')),
+    path('categories/', include('categories.urls', namespace='categories')),
     path('', include('projects.urls', namespace='projects')),
     # Add other app URLs here
 ]

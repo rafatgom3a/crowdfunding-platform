@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="container mt-5" style="max-width: 600px;">
+  <h2 class="mb-4">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Category</h2>
+
+  <form method="POST" novalidate>
+    {% csrf_token %}
+    {{ form.as_p|safe }}
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'categories:category_list' %}" class="btn btn-secondary ms-2">Back to Categories</a>
+  </form>
+</div>
+{% endblock %}
