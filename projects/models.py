@@ -1,5 +1,5 @@
+from django.conf import settings # Import settings
 from django.db import models
-from django.contrib.auth.models import User  # to track who rated
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -16,7 +16,7 @@ class Project(models.Model):
 
 class Rating(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='ratings')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     value = models.IntegerField()
 
     class Meta:
