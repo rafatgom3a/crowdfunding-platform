@@ -28,12 +28,15 @@ def send_activation_email(request, user):
     # Get protocol (http or https)
     protocol = 'https' if request.is_secure() else 'http'
     
+    # Ensure token is a string without hyphens to match our comparison logic
+    token_str = str(user.activation_token).replace('-', '')
+    
     # Render the email template with context
     message = render_to_string('users/email/account_activation_email.html', {
         'user': user,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': user.activation_token,
+        'token': token_str,
         'protocol': protocol,
     })
     
@@ -52,6 +55,14 @@ def send_activation_email(request, user):
         )
         print(f"Email sent successfully to {to_email}, result: {result}")
         return True
+    except ConnectionRefusedError:
+        print("Email sending error: Connection refused")
+        messages.error(request, "Error sending activation email: Connection refused. Please check your email server configuration.")
+        return False
+    except TimeoutError:
+        print("Email sending error: Connection timed out")
+        messages.error(request, "Error sending activation email: Connection timed out. Please check your email server configuration.")
+        return False
     except Exception as e:
         # Log the error for debugging
         print(f"Email sending error: {str(e)}")
@@ -66,19 +77,22 @@ def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
+            # Don't save the user yet - create the instance but don't commit to database
             user = form.save(commit=False)
             user.is_active = False # User is not active until email confirmation
             user.set_activation_token() # Generate token and expiry
-            user.save()
             
+            # Try to send the activation email before saving the user
             if send_activation_email(request, user):
+                # Only save the user if email was sent successfully
+                user.save()
                 messages.success(request, 'Registration successful! Please check your email to activate your account.')
                 return redirect('users:login') # Redirect to login or a specific "check email" page
             else:
-                # If email sending failed, perhaps delete the user or mark for retry
-                # For now, we'll let the user try to log in and resend activation if needed
-                messages.warning(request, 'Registration successful, but we could not send the activation email. Please try logging in to resend.')
-                return redirect('users:login')
+                # If email sending failed, don't save the user
+                messages.error(request, 'Registration failed: Could not send activation email. Please try again later.')
+                # Return to the same page with the form data preserved
+                return render(request, 'users/register.html', {'form': form, 'title': 'Register'})
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -87,32 +101,60 @@ def register_view(request):
 
 # --- Account Activation View ---
 def activate_view(request, uidb64, token):
+    print(f"Activation attempt with uidb64: {uidb64}, token: {token}")
+    
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
+        print(f"Decoded UID: {uid}")
         user = User.objects.get(pk=uid)
         print(f"Found user: {user.email}, token from URL: {token}, user token: {user.activation_token}")
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
-        print(f"Error finding user: {str(e)}")
-        user = None
+        
+        # Check if user is already active
+        if user.is_active:
+            print(f"User {user.email} is already active")
+            messages.info(request, 'This account is already active. You can log in now.')
+            return redirect('users:login')
+            
+    except (TypeError, ValueError, OverflowError) as e:
+        print(f"Error decoding UID: {str(e)}")
+        messages.error(request, 'Invalid activation link format.')
+        return redirect('users:register')
+    except User.DoesNotExist as e:
+        print(f"User with ID {uid} not found: {str(e)}")
+        messages.error(request, 'No user found with this activation link.')
+        return redirect('users:register')
 
-    if user is not None and str(user.activation_token) == token:
-        if user.is_activation_token_valid():
-            user.is_active = True
-            user.activation_token = None # Clear the token after use
-            user.activation_token_expires_at = None
-            user.save()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend') # Log the user in
-            messages.success(request, 'Your account has been activated successfully! You are now logged in.')
-            return redirect('projects:home') # Or user's profile page
-        else:
-            messages.error(request, 'Activation link has expired. Please try to register again or request a new one.')
-            # Optionally, provide a way to resend activation link
-            return redirect('users:register') # Or a specific page for expired links
-    else:
-        if user:
-            print(f"Token mismatch: URL token '{token}' != user token '{user.activation_token}'")
-        messages.error(request, 'Activation link is invalid!')
-        return redirect('users:register') # Or home page
+    # Check token match - handle both string and UUID comparison
+    if user.activation_token is None:
+        print(f"User {user.email} has no activation token")
+        messages.error(request, 'Activation link is invalid! No token found for this user.')
+        return redirect('users:register')
+        
+    # Convert both to strings for comparison to avoid type issues
+    user_token_str = str(user.activation_token).lower().replace('-', '')
+    url_token_str = str(token).lower().replace('-', '')
+    
+    print(f"Comparing tokens: URL token '{url_token_str}' vs user token '{user_token_str}'")
+    
+    if user_token_str != url_token_str:
+        print(f"Token mismatch: URL token '{token}' != user token '{user.activation_token}'")
+        messages.error(request, 'Activation link is invalid! Token does not match.')
+        return redirect('users:register')
+        
+    # Check token validity (expiration)
+    if not user.is_activation_token_valid():
+        print(f"Token expired for user {user.email}")
+        messages.error(request, 'Activation link has expired. Please request a new one.')
+        return redirect('users:resend_activation')
+        
+    # If we get here, everything is valid
+    user.is_active = True
+    user.activation_token = None  # Clear the token after use
+    user.activation_token_expires_at = None
+    user.save()
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    messages.success(request, 'Your account has been activated successfully! You are now logged in.')
+    return redirect('projects:home')
 
 # --- Login View ---
 def login_view(request):
@@ -135,8 +177,11 @@ def login_view(request):
                         return redirect(next_url)
                     return redirect('projects:home') # Or user's profile page
                 else:
-                    messages.error(request, 'Your account is not active. Please check your email for the activation link or contact support.')
-                    # Optionally, add a way to resend activation link here
+                    # Add a resend activation link option
+                    messages.error(request, 'Your account is not active. Please check your email for the activation link.')
+                    # Store the inactive user's email in session for resend functionality
+                    request.session['inactive_user_email'] = email
+                    return redirect('users:resend_activation')
             else:
                 messages.error(request, 'Invalid email or password.')
         else:
@@ -249,3 +294,28 @@ class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 
 # Note: For password change when user is logged in, Django provides PasswordChangeView and PasswordChangeDoneView
 # We can add them if needed, similar to password reset.
+
+# --- Resend Activation Email View ---
+def resend_activation_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email, is_active=False)
+            # Generate a new token
+            user.set_activation_token()
+            user.save()
+            
+            if send_activation_email(request, user):
+                messages.success(request, 'A new activation email has been sent. Please check your inbox.')
+                return redirect('users:login')
+            else:
+                messages.error(request, 'Failed to send activation email. Please try again later.')
+        except User.DoesNotExist:
+            messages.error(request, 'No inactive account found with this email address.')
+    
+    # Get email from session if available
+    email = request.session.get('inactive_user_email', '')
+    if 'inactive_user_email' in request.session:
+        del request.session['inactive_user_email']
+    
+    return render(request, 'users/resend_activation.html', {'email': email, 'title': 'Resend Activation Email'})

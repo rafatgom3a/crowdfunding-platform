@@ -60,6 +60,7 @@ class User(AbstractUser):
     def set_activation_token(self):
         self.activation_token = uuid.uuid4()
         self.activation_token_expires_at = timezone.now() + timezone.timedelta(hours=24)
+        # Don't save here, let the view control when to save
         self.save()
 
     def is_activation_token_valid(self):
