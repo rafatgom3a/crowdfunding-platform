@@ -40,8 +40,9 @@
             </div>
             <div class="card-body">
                 <!-- Placeholder for user's projects -->
-                <p>Your projects will be listed here.</p>
-                {# Loop through user.projects_created or similar relation #}
+                <!-- <p>Your projects will be listed here.</p> -->
+                <!-- {# Loop through user.projects_created or similar relation #} -->
+                <a href="{% url 'users:user_projects' %}">See projects</a>
             </div>
         </div>
 
@@ -51,8 +52,9 @@
             </div>
             <div class="card-body">
                 <!-- Placeholder for user's donations -->
-                <p>Your donations will be listed here.</p>
-                {# Loop through user.donations_made or similar relation #}
+                <!-- <p>Your donations will be listed here.</p> -->
+                <!-- {# Loop through user.donations_made or similar relation #} -->
+                 <a href="{% url 'users:user_donations' %}">see donations</a>
             </div>
         </div>
     </div>
