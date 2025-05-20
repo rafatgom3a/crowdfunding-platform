@@ -31,8 +31,17 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True
 DEBUG = config('DEBUG', cast=bool)
 
+# Email Configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # Keep your original SMTP setting
+# For debugging, you can temporarily use:
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # This will print emails to the console
+
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com') 
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') 
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 
 ALLOWED_HOSTS = []
@@ -47,14 +56,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-    'projects',
+    'users',      
+    'projects',   
     'donations',
     'comments',
     'core',
     'crispy_forms',
     'django_cleanup.apps.CleanupConfig',
     'social_django',
+    'crispy_bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -72,7 +82,7 @@ ROOT_URLCONF = 'crowdfund_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,3 +157,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+AUTH_USER_MODEL = 'users.User'
