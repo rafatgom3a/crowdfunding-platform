@@ -82,7 +82,7 @@ This project aims to create a **Crowdfunding Web Platform** specifically targeti
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/crowdfunding-platform.git
+   git clone https://github.com/rafatgom3a/crowdfunding-platform.git
    cd crowdfunding-platform
    ```
 
