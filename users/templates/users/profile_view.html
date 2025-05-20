@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %} {# For profile picture if you store default or want to use static for it #}
+
+{% block title %}{{ user.first_name }}'s Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" class="card-img-top" alt="{{ user.first_name }}'s Profile Picture" style="max-height: 300px; object-fit: cover;">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{ user.first_name }} {{ user.last_name }}</h5>
+                <p class="card-text">{{ user.email }}</p>
+                <a href="{% url 'users:profile_edit' %}" class="btn btn-primary">Edit Profile</a>
+                <a href="{% url 'users:delete_account' %}" class="btn btn-danger mt-2">Delete Account</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Profile Details</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>First Name:</strong> {{ user.first_name }}</p>
+                <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Mobile Phone:</strong> {{ user.mobile_phone }}</p>
+                <hr>
+                <h5>Additional Information</h5>
+                <p><strong>Birth Date:</strong> {{ user_profile.birth_date|date:"F d, Y"|default:"Not set" }}</p>
+                <p><strong>Facebook Profile:</strong> {% if user_profile.facebook_profile %}<a href="{{ user_profile.facebook_profile }}" target="_blank">{{ user_profile.facebook_profile }}</a>{% else %}Not set{% endif %}</p>
+                <p><strong>Country:</strong> {{ user_profile.country|default:"Not set" }}</p>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>My Projects</h4>
+            </div>
+            <div class="card-body">
+                <!-- Placeholder for user's projects -->
+                <p>Your projects will be listed here.</p>
+                {# Loop through user.projects_created or similar relation #}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>My Donations</h4>
+            </div>
+            <div class="card-body">
+                <!-- Placeholder for user's donations -->
+                <p>Your donations will be listed here.</p>
+                {# Loop through user.donations_made or similar relation #}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

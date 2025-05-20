@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Account - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2 class="card-title text-center">Confirm Account Deletion</h2>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                <p>All your projects and donation history will be permanently removed.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    {# Bonus: Add password field here for confirmation if implementing that feature #}
+                    {# <div class="form-group"> #}
+                    {#     <label for="id_password">Enter your password to confirm:</label> #}
+                    {#     <input type="password" name="password" class="form-control" required id="id_password"> #}
+                    {# </div> #}
+                    <button type="submit" class="btn btn-danger btn-block mt-3">Yes, Delete My Account</button>
+                    <a href="{% url 'users:profile_view' %}" class="btn btn-secondary btn-block mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title text-center">Login</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-success btn-block mt-3">Login</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small>
+                    Forgot your password? <a href="{% url 'users:password_reset' %}">Reset it here</a>.
+                    <br>
+                    Don't have an account? <a href="{% url 'users:register' %}">Register here</a>.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

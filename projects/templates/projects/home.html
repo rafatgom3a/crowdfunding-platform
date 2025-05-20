@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to the Crowdfunding Platform!</h1>
+    <p class="lead">This is the homepage for our projects. More content coming soon!</p>
+    <hr class="my-4">
+    <p>Explore projects, start your own campaign, or support a cause.</p>
+    {% if not user.is_authenticated %}
+    <a class="btn btn-primary btn-lg" href="{% url 'users:register' %}" role="button">Get Started - Register</a>
+    <a class="btn btn-secondary btn-lg ml-2" href="{% url 'users:login' %}" role="button">Login</a>
+    {% else %}
+    <a class="btn btn-success btn-lg" href="#" role="button">View Projects</a> {# Placeholder for actual projects list #}
+    {% endif %}
+</div>
+
+{# Placeholder sections for homepage content as per requirements #}
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h2>Highest Rated Projects</h2>
+        <p>Slider with top 5 rated projects will go here.</p>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Latest Projects</h2>
+        <p>List of latest 5 projects will go here.</p>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Featured Projects</h2>
+        <p>List of latest 5 featured projects (admin selected) will go here.</p>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Categories</h2>
+        <p>List of categories will go here.</p>
+    </div>
+</div>
+ <div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Search Projects</h2>
+        <form class="form-inline">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search by title or tag" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

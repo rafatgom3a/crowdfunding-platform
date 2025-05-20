@@ -1,0 +1,15 @@
+{% autoescape off %}
+Hi {{ user.first_name }},
+
+Thank you for registering at Crowdfunding Platform!
+
+Please click on the link below to activate your account:
+http://{{ domain }}{% url 'users:activate' uidb64=uid token=token %}
+
+This activation link will expire in 24 hours.
+
+If you did not request this, please ignore this email.
+
+Thanks,
+The Crowdfunding Platform Team
+{% endautoescape %}
