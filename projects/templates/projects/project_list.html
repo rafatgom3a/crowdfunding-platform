@@ -7,6 +7,13 @@
             <a href="{% url 'projects:detail' project.id %}">{{ project.title }}</a> - {{ project.category.name }}
             <p>Target: {{ project.target_amount }} | Current: {{ project.current_amount }}</p>
             <p>Average Rating: {{ project.average_rating }}</p>
+            
+            {% if user.is_authenticated %}
+                {% if user == project.created_by or user.is_staff %}
+                    <a href="{% url 'projects:update' project.id %}">Edit</a> |
+                    <a href="{% url 'projects:delete' project.id %}">Delete</a>
+                {% endif %}
+            {% endif %}
         </li>
     {% empty %}
         <li>No projects available.</li>
@@ -14,3 +21,4 @@
 </ul>
 <a href="{% url 'projects:create' %}">Create New Project</a>
 {% endblock %}
+

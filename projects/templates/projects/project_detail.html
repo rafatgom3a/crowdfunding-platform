@@ -15,8 +15,13 @@
         <img src="{{ image.image.url }}" width="150" />
     {% endfor %}
 </div>
-<a href="{% url 'projects:update' object.id %}">Edit</a>
-<a href="{% url 'projects:delete' object.id %}">Delete</a>
+
+{% if user.is_authenticated %}
+    {% if user == object.created_by or user.is_staff %}
+        <a href="{% url 'projects:update' object.id %}">Edit</a>
+        <a href="{% url 'projects:delete' object.id %}">Delete</a>
+    {% endif %}
+{% endif %}
 
 <h3>Similar Projects</h3>
 <ul>
@@ -25,3 +30,4 @@
     {% endfor %}
 </ul>
 {% endblock %}
+

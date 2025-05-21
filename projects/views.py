@@ -66,11 +66,17 @@ class ProjectDetailView(DetailView):
         context["similar_projects"] = Project.objects.filter(
             tags__in=current_project.tags.all()
         ).exclude(id=current_project.id).distinct()[:4]
+        context["user"] = self.request.user   # Get the logged-in user
         return context
 
 class ProjectListView(ListView):
     model = Project
     template_name = "projects/project_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user  # add logged-in user
+        return context
 
 
 def projects_by_category(request, category_id):
