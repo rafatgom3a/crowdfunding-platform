@@ -78,6 +78,20 @@ class EmailPasswordResetForm(PasswordResetForm):
         self.fields['email'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': 'Enter your email address'}
         )
+        
+    def send_mail(self, subject_template_name, email_template_name,
+                  context, from_email, to_email, html_email_template_name=None):
+        """
+        Override the send_mail method to add logging
+        """
+        print(f"Sending password reset email to: {to_email}")
+        # Call the parent class's send_mail method
+        result = super().send_mail(
+            subject_template_name, email_template_name, context, from_email,
+            to_email, html_email_template_name
+        )
+        print(f"Password reset email sent successfully to {to_email}, result: {result}")
+        return result
 
 # For setting the new password after reset, Django's SetPasswordForm
 class NewPasswordForm(SetPasswordForm):
