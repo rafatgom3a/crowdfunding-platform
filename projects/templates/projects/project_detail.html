@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ object.title }}</h1>
+<p>{{ object.description }}</p>
+<p>Category: {{ object.category.name }}</p>
+<p>Tags: {% for tag in object.tags.all %}{{ tag.name }} {% endfor %}</p>
+<p>Target: {{ object.target_amount }}</p>
+<p>Current: {{ object.current_amount }}</p>
+<p>Start: {{ object.start_time }}</p>
+<p>End: {{ object.end_time }}</p>
+<p>Rating: {{ object.average_rating }}</p>
+<div>
+    <h3>Images:</h3>
+    {% for image in object.images.all %}
+        <img src="{{ image.image.url }}" width="150" />
+    {% endfor %}
+</div>
+<a href="{% url 'projects:update' object.id %}">Edit</a>
+<a href="{% url 'projects:delete' object.id %}">Delete</a>
+
+<h3>Similar Projects</h3>
+<ul>
+    {% for proj in similar_projects %}
+        <li><a href="{{ proj.get_absolute_url }}">{{ proj.title }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

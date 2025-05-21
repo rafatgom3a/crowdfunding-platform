@@ -22,3 +22,47 @@ def home_view(request):
         'categories': categories,
     }
     return render(request, 'projects/home.html', context)
+
+from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Project
+from .forms import ProjectForm
+
+class ProjectCreateView(LoginRequiredMixin, CreateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = "projects/project_form.html"
+    success_url = reverse_lazy("projects:list")
+
+class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = "projects/project_form.html"
+    success_url = reverse_lazy("projects:list")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.check_cancellation()  
+        return response
+
+class ProjectDeleteView(LoginRequiredMixin, DeleteView):
+    model = Project
+    template_name = "projects/project_confirm_delete.html"
+    success_url = reverse_lazy("projects:list")
+
+class ProjectDetailView(DetailView):
+    model = Project
+    template_name = "projects/project_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_project = self.object
+        context["similar_projects"] = Project.objects.filter(
+            tags__in=current_project.tags.all()
+        ).exclude(id=current_project.id).distinct()[:4]
+        return context
+
+class ProjectListView(ListView):
+    model = Project
+    template_name = "projects/project_list.html"

@@ -12,8 +12,9 @@
     <a class="btn btn-primary btn-lg" href="{% url 'users:register' %}" role="button">Get Started - Register</a>
     <a class="btn btn-secondary btn-lg ml-2" href="{% url 'users:login' %}" role="button">Login</a>
     {% else %}
-    <a class="btn btn-success btn-lg" href="#" role="button">View Projects</a> {# Placeholder for actual projects list
+    <a class="btn btn-success btn-lg"href="{% url 'projects:list' %}" role="button">View Projects</a> {# Placeholder for actual projects list
     #}
+    
     {% endif %}
 </div>
 
