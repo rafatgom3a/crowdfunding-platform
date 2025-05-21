@@ -304,15 +304,23 @@ def delete_account_view(request):
 
 class UserPasswordResetView(auth_views.PasswordResetView):
     template_name = 'users/password/password_reset_form.html'
-    email_template_name = 'users/password/password_reset_email.html'  # Email body
-    subject_template_name = 'users/password/password_reset_subject.txt'  # Email subject
-    # Our custom form if needed, or Django's default
-    form_class = EmailPasswordResetForm
+    email_template_name = 'users/password/password_reset_email.html'
+    subject_template_name = 'users/password/password_reset_subject.txt'
     success_url = reverse_lazy('users:password_reset_done')
+    form_class = EmailPasswordResetForm  # Use your custom form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Use SITE_URL from settings or config
+        context['domain'] = config('SITE_URL', default='localhost:8000')
+        # Get protocol (http or https)
+        protocol = 'https' if self.request.is_secure() else 'http'
+        context['protocol'] = protocol
+        return context
 
     def form_valid(self, form):
         messages.success(self.request, "We've emailed you instructions for setting your password, "
-                                       "if an account exists with the email you entered. You should receive them shortly.")
+                                    "if an account exists with the email you entered. You should receive them shortly.")
         return super().form_valid(form)
 
 
