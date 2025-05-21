@@ -3,6 +3,7 @@ from .models import Category
 from .forms import CategoryForm
 from django.contrib.admin.views.decorators import staff_member_required
 
+@staff_member_required
 def category_list(request):
     categories = Category.objects.all()
     return render(request, 'categories/category_list.html', {'categories': categories})
