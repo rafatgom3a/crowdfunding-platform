@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Projects in {{ category.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-primary">Projects in Category: <span class="text-dark">{{ category.name }}</span></h2>
+
+    {% if projects %}
+    <div class="list-group mb-4">
+        {% for project in projects %}
+        <a href="{% url 'projects:detail' project.id %}" class="list-group-item list-group-item-action">
+            <h5 class="mb-1">{{ project.title }}</h5>
+            <p class="mb-1 text-muted">{{ project.description|truncatewords:20 }}</p>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">No projects found in this category.</div>
+    {% endif %}
+
+    <a href="{% url 'projects:home' %}" class="btn btn-outline-secondary">Back to Home</a>
+</div>
+{% endblock %}

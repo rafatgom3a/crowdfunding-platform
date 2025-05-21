@@ -1,6 +1,9 @@
 from django.urls import path
+
+from accounts import views
 from .views import (
     home_view,
+    projects_by_category,
     ProjectCreateView, ProjectUpdateView, ProjectDeleteView,
     ProjectDetailView, ProjectListView,
 )
@@ -14,4 +17,5 @@ urlpatterns = [
     path('<int:pk>/', ProjectDetailView.as_view(), name='detail'),
     path('<int:pk>/update/', ProjectUpdateView.as_view(), name='update'),
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='delete'),
+    path('category/<int:category_id>/', projects_by_category, name='projects_by_category'),
 ]

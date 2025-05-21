@@ -11,7 +11,7 @@
 
 
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from categories.models import Category
 
@@ -66,3 +66,12 @@ class ProjectDetailView(DetailView):
 class ProjectListView(ListView):
     model = Project
     template_name = "projects/project_list.html"
+
+
+def projects_by_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    projects = Project.objects.filter(category=category)
+    return render(request, 'projects/projects_by_category.html', {
+        'category': category,
+        'projects': projects
+    })
