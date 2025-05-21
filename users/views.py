@@ -10,6 +10,8 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.conf import settings
+from decouple import config
+
 
 from .models import User, UserProfile
 from .forms import (
@@ -36,7 +38,7 @@ def send_activation_email(request, user):
     # Render the email template with context
     message = render_to_string('users/email/account_activation_email.html', {
         'user': user,
-        'domain': current_site.domain,
+        'domain': config('SITE_URL', default='localhost:8000'),
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': token_str,
         'protocol': protocol,

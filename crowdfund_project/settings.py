@@ -32,6 +32,7 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True
 DEBUG = config('DEBUG', cast=bool)
 
+SITE_URL = config('SITE_URL', default='localhost:8000')
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
@@ -172,5 +173,3 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 AUTH_USER_MODEL = 'users.User'
 
-
-SITE_URL = 'http://localhost:8000'
