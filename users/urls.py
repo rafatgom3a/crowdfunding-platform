@@ -10,9 +10,12 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     
+    # Profile URLs
     path('profile/', views.profile_view, name='profile_view'),
     path('profile/edit/', views.profile_edit_view, name='profile_edit'),
     path('profile/delete/', views.delete_account_view, name='delete_account'),
+    path('projects/', views.user_projects, name='user_projects'),
+    path('donations/', views.user_donations, name='user_donations'),
 
     # Password Reset URLs (using our custom views that subclass Django's)
     path('password_reset/', views.UserPasswordResetView.as_view(), name='password_reset'),

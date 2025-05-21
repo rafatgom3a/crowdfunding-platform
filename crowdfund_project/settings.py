@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'donations',
     'comments',
     'core',
+    'categories',
     'crispy_forms',
     'django_cleanup.apps.CleanupConfig',
     'social_django',

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ user.first_name }}'s Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<section class="container my-5">
+    <h2 class="mb-4">{{ user.first_name }}'s Projects</h2>
+    
+    {% if projects %}
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for project in projects %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ project.title }}</h5>
+                        <p class="card-text">{{ project.description }}</p>
+                        <p class="mb-1"><strong>End Date:</strong> {{ project.end_date }}</p>
+                        <p><strong>Status:</strong> {{ project.status }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No projects found.</p>
+    {% endif %}
+</section>
+{% endblock %}
