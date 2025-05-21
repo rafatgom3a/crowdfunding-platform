@@ -35,6 +35,11 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/project_form.html"
     success_url = reverse_lazy("projects:list")
 
+    def form_valid(self, form):
+        # Assign the logged-in user before saving the form
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = Project
     form_class = ProjectForm
