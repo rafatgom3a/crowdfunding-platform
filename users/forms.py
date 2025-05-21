@@ -82,10 +82,16 @@ class EmailPasswordResetForm(PasswordResetForm):
     def send_mail(self, subject_template_name, email_template_name,
                   context, from_email, to_email, html_email_template_name=None):
         """
-        Override the send_mail method to add logging
+        Override the send_mail method to add logging and fix the domain
         """
+        # Override the domain in the context with full URL including protocol
+        context['domain'] = 'http://localhost:8000'
+        # We don't need separate protocol since it's included in domain now
+        if 'protocol' in context:
+            del context['protocol']
+            
         print(f"Sending password reset email to: {to_email}")
-        # Call the parent class's send_mail method
+        # Call the parent class's send_mail method with the modified context
         result = super().send_mail(
             subject_template_name, email_template_name, context, from_email,
             to_email, html_email_template_name

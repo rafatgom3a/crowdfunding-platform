@@ -32,7 +32,7 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True
 DEBUG = config('DEBUG', cast=bool)
 
-SITE_URL = config('SITE_URL', default='localhost:8000')
+SITE_URL = config('SITE_URL', default='http://localhost:8000')
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
