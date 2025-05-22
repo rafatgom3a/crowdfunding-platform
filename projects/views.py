@@ -66,11 +66,23 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+
+        # Delete selected images
+        image_ids_to_delete = self.request.POST.getlist('delete_images')
+        ProjectImage.objects.filter(id__in=image_ids_to_delete, project=self.object).delete()
+
+        # Upload new images
         images = self.request.FILES.getlist('images')
         for image_file in images:
             ProjectImage.objects.create(project=self.object, image=image_file)
+
         self.object.check_cancellation()
         return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['existing_images'] = self.object.project_images.all()
+        return context
 
 class ProjectDeleteView(LoginRequiredMixin, DeleteView):
     model = Project
