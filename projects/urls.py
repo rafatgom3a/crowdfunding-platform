@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.urls import path
+from django.conf.urls.static import static
 
 from accounts import views
 from .views import (
@@ -19,3 +21,7 @@ urlpatterns = [
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='delete'),
     path('category/<int:category_id>/', projects_by_category, name='projects_by_category'),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

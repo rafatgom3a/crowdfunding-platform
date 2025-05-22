@@ -1,5 +1,6 @@
 from django import forms
-from .models import Project, Rating
+from .models import Project, ProjectImage, Rating
+from django.forms import modelformset_factory
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -21,3 +22,13 @@ class RatingForm(forms.ModelForm):
         widgets = {
             "value": forms.NumberInput(attrs={"class": "form-control", "min": 1, "max": 5}),
         }
+
+
+class ProjectImageForm(forms.ModelForm):
+    class Meta:
+        model = ProjectImage
+        fields = ['image']
+
+
+
+ProjectImageFormSet = modelformset_factory(ProjectImage, form=ProjectImageForm, extra=3)

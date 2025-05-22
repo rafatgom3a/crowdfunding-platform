@@ -11,7 +11,7 @@
 
 
 
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from categories.models import Category
 
@@ -26,8 +26,18 @@ def home_view(request):
 from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Project
-from .forms import ProjectForm
+from django import forms
+from .models import Project, ProjectImage
+from .forms import ProjectForm, ProjectImageFormSet
+
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['title', 'description', 'category', 'tags', 'target_amount', 'end_time']
+
+
+
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
     model = Project
@@ -35,10 +45,18 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/project_form.html"
     success_url = reverse_lazy("projects:list")
 
+    # def form_valid(self, form):
+    #     # Assign the logged-in user before saving the form
+    #     form.instance.created_by = self.request.user
+    #     return super().form_valid(form)
+
     def form_valid(self, form):
-        # Assign the logged-in user before saving the form
         form.instance.created_by = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        images = self.request.FILES.getlist('images')
+        for image_file in images:
+            ProjectImage.objects.create(project=self.object, image=image_file)
+        return response
 
 class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = Project
@@ -48,7 +66,10 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        self.object.check_cancellation()  
+        images = self.request.FILES.getlist('images')
+        for image_file in images:
+            ProjectImage.objects.create(project=self.object, image=image_file)
+        self.object.check_cancellation()
         return response
 
 class ProjectDeleteView(LoginRequiredMixin, DeleteView):

@@ -12,7 +12,8 @@ class Tag(models.Model):
         return self.name
 
 class ProjectImage(models.Model):
-    image = models.ImageField(upload_to="project_images/")
+    project = models.ForeignKey('Project', related_name='project_images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="projects/image/")
 
     def __str__(self):
         return f"Image {self.id}"
@@ -26,7 +27,7 @@ class Project(models.Model):
     current_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(default=timezone.now)  
-    images = models.ManyToManyField(ProjectImage)
+    # images = models.ManyToManyField(ProjectImage)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     is_active = models.BooleanField(default=True)
 

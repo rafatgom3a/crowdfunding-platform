@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>{% if object %}Edit Project{% else %}Create Project{% endif %}</h1>
-<form method="post" enctype="multipart/form-data">
+  <h1>{% if object %}Edit Project{% else %}Create Project{% endif %}</h1>
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+    
+    <label for="id_images">Upload Images</label>
+    <input type="file" name="images" id="id_images" multiple>
+
     <button type="submit">Save</button>
 </form>
 {% endblock %}
