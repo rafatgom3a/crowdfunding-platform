@@ -12,15 +12,21 @@
 
 
 from django.shortcuts import get_object_or_404, redirect, render
-
 from categories.models import Category
+from django.db.models import Avg
+
 
 def home_view(request):
+    top_rated_projects = Project.objects.filter(is_active=True)\
+    .annotate(avg_rating=Avg('ratings__value'))\
+    .order_by('-avg_rating')[:5]
+
     latest_projects = Project.objects.filter(is_active=True).order_by('-start_time')[:5]
     featured_projects = Project.objects.filter(is_active=True, featuredproject__isnull=False).order_by('-start_time')[:5]
     categories = Category.objects.all() 
     context = {
         'title': 'Homepage',
+        'top_rated_projects': top_rated_projects,
         'latest_projects': latest_projects,
         'featured_projects': featured_projects,
         'categories': categories,

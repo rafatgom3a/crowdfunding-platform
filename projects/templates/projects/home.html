@@ -25,13 +25,51 @@
     </div>
 </div>
 
-{# Placeholder sections for homepage content as per requirements #}
 <div class="row mt-5">
     <div class="col-md-12">
-        <h2>Highest Rated Projects</h2>
-        <p>Slider with top 5 rated projects will go here.</p>
+        <h2 class="mb-4">Highest Rated Projects</h2>
+
+        {% if top_rated_projects %}
+        <div id="topRatedCarousel" class="carousel slide position-relative" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for project in top_rated_projects %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="card border-0">
+                        {% if project.project_images.all %}
+                        <div class="position-relative">
+                            <img src="{{ project.project_images.all.0.image.url }}"
+                                 class="d-block w-100"
+                                 style="height: 450px; object-fit: cover;"
+                                 alt="{{ project.title }}">
+                            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                                <h5>{{ project.title }}</h5>
+                                <p>{{ project.description|truncatewords:20 }}</p>
+                                <p><strong>Average Rating:</strong> {{ project.avg_rating|floatformat:1 }}</p>
+                                <a href="{% url 'projects:detail' project.id %}" class="btn btn-primary mt-2">View Project</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Navigation Arrows -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#topRatedCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#topRatedCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No top-rated projects found.</div>
+        {% endif %}
     </div>
 </div>
+
 <div class="row mt-4">
     <div class="col-md-12">
         <h2>Latest Projects</h2>
