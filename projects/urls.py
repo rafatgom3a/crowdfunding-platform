@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 from django.conf.urls.static import static
 
-from accounts import views
+from . import views
 from .views import (
     home_view,
     projects_by_category,
@@ -20,6 +20,7 @@ urlpatterns = [
     path('<int:pk>/update/', ProjectUpdateView.as_view(), name='update'),
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='delete'),
     path('category/<int:category_id>/', projects_by_category, name='projects_by_category'),
+    path('projects/<int:pk>/', views.ProjectDetailView.as_view(), name='project_detail'),
 ]
 
 
