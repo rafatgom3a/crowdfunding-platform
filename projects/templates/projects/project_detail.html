@@ -50,6 +50,10 @@
         <a href="{% url 'projects:update' object.id %}" class="btn btn-primary me-2">Edit</a>
         <a href="{% url 'projects:delete' object.id %}" class="btn btn-danger">Delete</a>
       </div>
+    {% else %}
+      <div class="mb-4">
+        <a href="{% url 'donations:donate' object.id %}" class="btn btn-success">Donate</a>
+      </div>
     {% endif %}
   {% endif %}
 

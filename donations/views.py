@@ -14,6 +14,8 @@ def donate_to_project(request, project_id):
             donation.user = request.user
             donation.project = project
             donation.save()
+            project.current_amount += donation.amount
+            project.save()
             return render(request, 'donations/donation_success.html', {'donation': donation})
     else:
         form = DonationForm()
