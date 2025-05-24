@@ -29,6 +29,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from .models import Project, ProjectImage
 from .forms import ProjectForm, ProjectImageFormSet
+from comments.forms import CommentForm
 
 
 class ProjectForm(forms.ModelForm):
@@ -100,6 +101,7 @@ class ProjectDetailView(DetailView):
             tags__in=current_project.tags.all()
         ).exclude(id=current_project.id).distinct()[:4]
         context["user"] = self.request.user   # Get the logged-in user
+        context["form"] = CommentForm()
         return context
 
 class ProjectListView(ListView):

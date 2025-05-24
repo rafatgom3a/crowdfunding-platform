@@ -54,9 +54,33 @@
       <div class="mb-4">
         <a href="{% url 'donations:donate' object.id %}" class="btn btn-success">Donate</a>
       </div>
+      <div class="container mt-4">
+        <h3>Add Comment to {{ object.title }}</h3>
+        <form method="post" action="{% url 'comments:add_comment' project.id %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    </div>
     {% endif %}
   {% endif %}
 
+  <div class="container mt-4">
+    <h3>Comments</h3>
+    <ul class="list-group">
+      {% for comment in object.comments.all %}
+        <li class="list-group-item">
+          <strong>{{ comment.user.first_name }}</strong> ({{ comment.created_at|date:"M d, Y H:i" }}):
+          <p>{{ comment.content }}</p>
+          {% if user.is_authenticated and user == comment.user %}
+            <a href="{% url 'comments:delete_comment' comment.id %}" class="btn btn-danger btn-sm">Delete</a>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="list-group-item">No comments yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
   <div>
     <h3>Similar Projects</h3>
     <ul class="list-group">
