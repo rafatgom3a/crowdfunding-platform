@@ -10,7 +10,10 @@ urlpatterns = [
     path('accounts/', include('users.urls', namespace='accounts')),  # Change namespace to 'accounts'
     path('users/', include('users.urls', namespace='users')),
     path('categories/', include('categories.urls', namespace='categories')),
+    path('donations/', include('donations.urls', namespace='donations')),
+    path('comments/', include('comments.urls', namespace='comments')),
     path('', include('projects.urls', namespace='projects')),
+    
     # Add other app URLs here
 ]
 

@@ -12,8 +12,10 @@
     <a class="btn btn-primary btn-lg" href="{% url 'users:register' %}" role="button">Get Started - Register</a>
     <a class="btn btn-secondary btn-lg ml-2" href="{% url 'users:login' %}" role="button">Login</a>
     {% else %}
-    <a class="btn btn-success btn-lg" href="#" role="button">View Projects</a> {# Placeholder for actual projects list
+    <a class="btn btn-success btn-lg" href="{% url 'projects:list' %}" role="button">View Projects</a> {# Placeholder
+    for actual projects list
     #}
+
     {% endif %}
 </div>
 
@@ -56,7 +58,11 @@
                     style="transition: transform 0.3s ease; cursor: pointer;"
                     onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'"
                     title="{{ category.name }}">
-                    {{ category.name }}
+
+                    <a href="{% url 'projects:projects_by_category' category.id %}">
+                        {{ category.name }}
+                    </a>
+
                     <span class="badge bg-secondary rounded-pill ms-2">{{ category.project_set.count }}</span>
                 </div>
             </div>

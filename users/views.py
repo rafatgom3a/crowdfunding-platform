@@ -12,6 +12,8 @@ from django.utils import timezone
 from django.conf import settings
 from decouple import config
 
+from projects.models import Project
+
 
 from .models import User, UserProfile
 from .forms import (
@@ -307,11 +309,13 @@ class UserPasswordResetView(auth_views.PasswordResetView):
     email_template_name = 'users/password/password_reset_email.html'
     subject_template_name = 'users/password/password_reset_subject.txt'
     success_url = reverse_lazy('users:password_reset_done')
-    form_class = EmailPasswordResetForm  
+    form_class = EmailPasswordResetForm  # Use your custom form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Use SITE_URL from settings or config
         context['domain'] = config('SITE_URL', default='localhost:8000')
+        # Get protocol (http or https)
         protocol = 'https' if self.request.is_secure() else 'http'
         context['protocol'] = protocol
         return context
@@ -329,7 +333,7 @@ class UserPasswordResetDoneView(auth_views.PasswordResetDoneView):
 
 class UserPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
     template_name = 'users/password/password_reset_confirm.html'
-    form_class = NewPasswordForm  
+    form_class = NewPasswordForm  # Our custom form for setting new password
     success_url = reverse_lazy('users:password_reset_complete')
     title = 'Enter New Password'
 
@@ -346,7 +350,7 @@ class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 # Note: For password change when user is logged in, Django provides PasswordChangeView and PasswordChangeDoneView
 # We can add them if needed, similar to password reset.
 
-
+# --- Resend Activation Email View ---
 
 
 def resend_activation_view(request):
@@ -378,25 +382,25 @@ def resend_activation_view(request):
 
 
 
-
-
+# --- User Projects and Donations Views ---
+@login_required
 def user_projects(request):
-    #     projects = UserProject.objects.filter(user=request.user)
-    projects = [{
-        'title': 'Project Title1',
-        'description': 'Project Description1',
-        'goal': 1000,
-        'current_amount': 500,
-        'end_date': '2023-01-01',
-        'status': 'active'
-    }, {
-        'title': 'Project Title2',
-        'description': 'Project Description2',
-        'goal': 2000,
-        'current_amount': 1500,
-        'end_date': '2023-01-01',
-        'status': 'completed'
-    }]
+    projects = Project.objects.filter(created_by=request.user)
+    # projects = [{
+    #     'title': 'Project Title1',
+    #     'description': 'Project Description1',
+    #     'goal': 1000,
+    #     'current_amount': 500,
+    #     'end_date': '2023-01-01',
+    #     'status': 'active'
+    # }, {
+    #     'title': 'Project Title2',
+    #     'description': 'Project Description2',
+    #     'goal': 2000,
+    #     'current_amount': 1500,
+    #     'end_date': '2023-01-01',
+    #     'status': 'completed'
+    # }]
     return render(request, 'users/projects_list.html', {'projects': projects})
 
 # @login_required
