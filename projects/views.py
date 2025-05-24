@@ -121,3 +121,9 @@ def projects_by_category(request, category_id):
         'category': category,
         'projects': projects
     })
+
+class LatestProjectsView(ListView):
+    model = Project
+    template_name = 'projects/latest_projects.html'
+    context_object_name = 'projects'
+    queryset = Project.objects.filter(is_active=True).order_by('-start_time')[:5]

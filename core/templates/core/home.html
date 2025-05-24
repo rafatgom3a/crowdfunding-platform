@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto px-4">
+  <form method="GET" class="my-4">
+    <input type="text" name="q" placeholder="Search projects..." value="{{ query }}" class="border p-2 w-full rounded">
+  </form>
+
+  {% if query %}
+    <h2 class="text-xl font-semibold mb-2">Search Results</h2>
+    {% for project in search_results %}
+      <div class="p-4 bg-white shadow rounded mb-2">{{ project.title }}</div>
+    {% empty %}
+      <p>No results found.</p>
+    {% endfor %}
+  {% endif %}
+
+  <h2 class="text-xl font-semibold mt-6 mb-2">Top Rated Projects</h2>
+  <div class="flex overflow-x-scroll gap-4">
+    {% for project in top_rated_projects %}
+      <div class="min-w-[200px] p-4 bg-white shadow rounded">{{ project.title }}</div>
+    {% endfor %}
+  </div>
+
+  <h2 class="text-xl font-semibold mt-6 mb-2">Latest Projects</h2>
+  {% for project in latest_projects %}
+    <div class="p-4 bg-white shadow rounded mb-2">{{ project.title }}</div>
+  {% endfor %}
+
+  <h2 class="text-xl font-semibold mt-6 mb-2">Featured Projects</h2>
+  {% for project in featured_projects %}
+    <div class="p-4 bg-white shadow rounded mb-2">{{ project.title }}</div>
+  {% endfor %}
+
+  <h2 class="text-xl font-semibold mt-6 mb-2">Categories</h2>
+  <div class="grid grid-cols-2 gap-2">
+    {% for category in categories %}
+      <div class="p-2 bg-gray-100 rounded text-center">{{ category.name }}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
