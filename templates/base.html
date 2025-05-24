@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>{% block title %}Crowdfunding Platform{% endblock %}</title>
+
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -50,9 +51,90 @@
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="mt-5 mb-3 text-center text-muted">
-        <p>&copy; {% now "Y" %} Crowdfunding Platform</p>
-    </footer>
+<!-- Footer -->
+<footer class="text-dark py-4 mt-5 bg-light">
+  <div class="container">
+    <div class="row justify-content-between">
+      <!-- Policy Links -->
+<div class="col-md-6 mb-3">
+  <div class="row">
+    <div class="col-6">
+      <ul class="list-unstyled">
+        <li><a href="/terms" class="text-dark text-decoration-none hover-link">Terms of Service</a></li>
+        <li><a href="/privacy" class="text-dark text-decoration-none hover-link">Privacy Notice</a></li>
+        <li><a href="/legal" class="text-dark text-decoration-none hover-link">Legal</a></li>
+        <li><a href="/accessibility" class="text-dark text-decoration-none hover-link">Accessibility</a></li>
+      </ul>
+    </div>
+    <div class="col-6">
+      <ul class="list-unstyled">
+        <li><a href="/cookies" class="text-dark text-decoration-none hover-link">Cookie Policy</a></li>
+        <li><a href="/privacy" class="text-dark text-decoration-none hover-link">Your Privacy Choices</a></li>
+        <li><a href="/cookies" class="text-dark text-decoration-none hover-link">Manage Cookies</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+
+      <!-- Social Media + App Stores -->
+      <div class="col-md-6">
+        <div class="d-flex flex-column gap-3 align-items-md-end">
+          <!-- Social Media -->
+          <div class="d-flex gap-3 my-2">
+            <a href="#" aria-label="Facebook" class="text-dark mx-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M22 12c0-5.522-4.478-10-10-10S2 6.478 2 12c0 4.991 3.657 9.128 8.438 9.877v-6.987H7.898v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.128 22 16.991 22 12z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="Instagram" class="text-dark mx-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M12 2.2c3.2 0 3.584.012 4.85.07 1.17.055 1.997.24 2.46.405a4.918 4.918 0 0 1 1.72 1.12 4.918 4.918 0 0 1 1.12 1.72c.165.463.35 1.29.405 2.46.058 1.266.07 1.65.07 4.85s-.012 3.584-.07 4.85c-.055 1.17-.24 1.997-.405 2.46a4.918 4.918 0 0 1-1.12 1.72 4.918 4.918 0 0 1-1.72 1.12c-.463.165-1.29.35-2.46.405-1.266.058-1.65.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.055-1.997-.24-2.46-.405a4.918 4.918 0 0 1-1.72-1.12 4.918 4.918 0 0 1-1.12-1.72c-.165-.463-.35-1.29-.405-2.46-.058-1.266-.07-1.65-.07-4.85s.012-3.584.07-4.85c.055-1.17.24-1.997.405-2.46a4.918 4.918 0 0 1 1.12-1.72 4.918 4.918 0 0 1 1.72-1.12c.463-.165 1.29-.35 2.46-.405C8.416 2.212 8.8 2.2 12 2.2zm0 1.8c-3.153 0-3.52.012-4.76.068-1.01.047-1.556.218-1.92.362a3.113 3.113 0 0 0-1.14.74 3.113 3.113 0 0 0-.74 1.14c-.144.364-.315.91-.362 1.92C3.412 9.48 3.4 9.847 3.4 13s.012 3.52.068 4.76c.047 1.01.218 1.556.362 1.92.164.418.418.8.74 1.14.34.322.722.576 1.14.74.364.144.91.315 1.92.362C8.48 20.588 8.847 20.6 12 20.6s3.52-.012 4.76-.068c1.01-.047 1.556-.218 1.92-.362a3.113 3.113 0 0 0 1.14-.74 3.113 3.113 0 0 0 .74-1.14c.144-.364.315-.91.362-1.92.056-1.24.068-1.607.068-4.76s-.012-3.52-.068-4.76c-.047-1.01-.218-1.556-.362-1.92a3.113 3.113 0 0 0-.74-1.14 3.113 3.113 0 0 0-1.14-.74c-.364-.144-.91-.315-1.92-.362C15.52 4.012 15.153 4 12 4zm0 3.4a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2zm0 1.8a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6zm5.6-.9a1.05 1.05 0 1 1 0 2.1 1.05 1.05 0 0 1 0-2.1z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="X" class="text-dark mx-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M22.162 1H17.5l-5.52 7.84L6.54 1H1l7.52 10.88L1 23h4.66l5.74-8.16L17.5 23H23l-7.68-10.64L22.162 1z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="TikTok" class="text-dark mx-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M16.5 3c1.1 1.8 2.5 2.7 4.5 3v4.1c-1.4-.1-2.8-.5-4-1.3v6.8c0 3.9-2.8 6.5-6.8 6.4C6.8 21.9 4 19.2 4 15.6c0-3.6 2.8-6.3 6.5-6.4.5 0 1 .1 1.5.2V14c0 1.2-.8 2.1-2 2.2-1.3.2-2.5-.8-2.5-2.1 0-1.1.7-2 1.8-2.2.2 0 .4-.1.7-.1V8.4c-.2 0-.4-.1-.7-.1-3.5 0-6.3 2.8-6.3 6.3S6.5 21 10.1 21c3.7 0 6.4-2.6 6.4-6.4V3h-.1z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="YouTube" class="text-dark mx-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M10 15l5.19-3L10 9v6zm12-3c0-2.3-.2-4.6-.6-6.8-.2-1.2-1.2-2.2-2.4-2.4C17.6 2.2 12 2 12 2s-5.6.2-7 .8c-1.2.2-2.2 1.2-2.4 2.4C2.2 6.4 2 8.7 2 11s.2 4.6.6 6.8c.2 1.2 1.2 2.2 2.4 2.4 1.4.6 7 .8 7 .8s5.6-.2 7-.8c1.2-.2 2.2-1.2 2.4-2.4.4-2.2.6-4.5.6-6.8z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="LinkedIn" class="text-dark mx-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM0 8h5v16H0V8zm7.5 0h4.7v2.3h.1c.6-1.1 2.1-2.3 4.3-2.3 4.6 0 5.4 3 5.4 6.9V24h-5v-7.8c0-1.9 0-4.3-2.6-4.3s-3 2-3 4.1V24h-5V8z"/>
+              </svg>
+            </a>
+          </div>
+
+          <!-- App Store Buttons -->
+          <div class="d-flex gap-2">
+            <a href="#" target="_blank">
+              <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" height="40">
+            </a>
+            <a href="#" target="_blank">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" height="40">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Legal -->
+    <div class="text-center mt-4 border-top pt-3">
+      &copy; 2025 <strong>Crowdfunding Platform</strong>. All rights reserved.
+    </div>
+  </div>
+</footer>
+
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
