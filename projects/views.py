@@ -14,9 +14,20 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from categories.models import Category
 from django.db.models import Avg
+from django.db.models import Q
+
 
 
 def home_view(request):
+    query = request.GET.get('q')
+    if query:
+        search_results = Project.objects.filter(
+            Q(title__icontains=query) |
+            Q(tags__name__icontains=query)  # If you're using taggit or related tag model
+        ).distinct()
+    else:
+        search_results = None
+
     top_rated_projects = Project.objects.filter(is_active=True)\
     .annotate(avg_rating=Avg('ratings__value'))\
     .order_by('-avg_rating')[:5]
@@ -26,6 +37,8 @@ def home_view(request):
     categories = Category.objects.all() 
     context = {
         'title': 'Homepage',
+        'search_results': search_results,
+        'query': query,
         'top_rated_projects': top_rated_projects,
         'latest_projects': latest_projects,
         'featured_projects': featured_projects,

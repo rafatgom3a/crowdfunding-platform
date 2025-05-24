@@ -3,6 +3,7 @@
 {% block title %}{{ title }} - {{ block.super }}{% endblock %}
 
 {% block content %}
+
 <div class="jumbotron">
     <h1 class="display-4">Welcome to the Crowdfunding Platform!</h1>
     <hr class="my-4">
@@ -15,16 +16,41 @@
     {% endif %}
 </div>
 
+<!-- Search Projects -->
 <div class="row mt-4">
     <div class="col-md-12">
         <h2>Search Projects</h2>
-        <form class="form-inline">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search by title or tag" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <form method="get" action="{% url 'projects:home' %}" class="form-inline">
+          <input class="form-control mr-sm-2" name="q" type="search" placeholder="Search by title or tag" value="{{ query|default:'' }}">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
+        {% if search_results != None %}
+        <div class="mt-4">
+            <h3>Search Results{% if query %} for "{{ query }}"{% endif %}</h3>
+            {% if search_results %}
+                <div class="row">
+                    {% for project in search_results %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <img src="{{ project.project_images.first.image.url }}" class="card-img-top" alt="{{ project.title }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ project.title }}</h5>
+                                    <p class="card-text">{{ project.details|truncatewords:15 }}</p>
+                                    <a href="{% url 'projects:project_detail' project.id %}" class="btn btn-primary">View Project</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No projects found matching your search.</p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </div>
 
+<!-- Highest Rated Projects -->
 <div class="row mt-5">
     <div class="col-md-12">
         <h2 class="mb-4">Highest Rated Projects</h2>
@@ -54,7 +80,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Navigation Arrows -->
             <button class="carousel-control-prev" type="button" data-bs-target="#topRatedCarousel" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
@@ -70,6 +95,7 @@
     </div>
 </div>
 
+<!-- Latest Projects -->
 <div class="row mt-4">
     <div class="col-md-12">
         <h2>Latest Projects</h2>
@@ -102,7 +128,7 @@
     {% endif %}
 </div>
 
-
+<!-- Featured Projects -->
 <div class="row mt-4">
     <div class="col-md-12">
         <h2>Featured Projects</h2>
@@ -135,9 +161,8 @@
     {% endif %}
 </div>
 
-
+<!-- Categories -->
 <div class="row mt-4">
-
     <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Categories</h2>
@@ -170,11 +195,6 @@
         </div>
         {% endif %}
     </div>
-
-
-
-
-
 </div>
 
 {% endblock %}
