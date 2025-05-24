@@ -16,10 +16,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from categories.models import Category
 
 def home_view(request):
+    latest_projects = Project.objects.filter(is_active=True).order_by('-start_time')[:5]
     featured_projects = Project.objects.filter(is_active=True, featuredproject__isnull=False).order_by('-start_time')[:5]
     categories = Category.objects.all() 
     context = {
         'title': 'Homepage',
+        'latest_projects': latest_projects,
         'featured_projects': featured_projects,
         'categories': categories,
     }

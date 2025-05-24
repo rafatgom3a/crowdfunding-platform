@@ -32,6 +32,37 @@
         <p>Slider with top 5 rated projects will go here.</p>
     </div>
 </div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Latest Projects</h2>
+    </div>
+
+    {% if latest_projects %}
+        {% for project in latest_projects %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if project.project_images.all %}
+                        <img src="{{ project.project_images.all.0.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ project.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'projects:detail' project.id %}" class="text-decoration-none">{{ project.title }}</a>
+                        </h5>
+                        <p class="card-text text-muted">{{ project.description|truncatewords:20 }}</p>
+                        <p class="mb-1">
+                            <strong>Target:</strong> ${{ project.target_amount }} |
+                            <strong>Current:</strong> ${{ project.current_amount }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-md-12">
+            <div class="alert alert-info">No recent projects yet.</div>
+        </div>
+    {% endif %}
+</div>
 
 
 <div class="row mt-4">
