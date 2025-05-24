@@ -13,8 +13,7 @@ urlpatterns = [
     path('donations/', include('donations.urls', namespace='donations')),
     path('comments/', include('comments.urls', namespace='comments')),
     path('', include('projects.urls', namespace='projects')),
-
-
+    
     # Add other app URLs here
 ]
 
