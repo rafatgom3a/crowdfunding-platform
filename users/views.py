@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.conf import settings
 from decouple import config
 
+from donations.models import Donation
 from projects.models import Project
 
 
@@ -386,40 +387,11 @@ def resend_activation_view(request):
 @login_required
 def user_projects(request):
     projects = Project.objects.filter(created_by=request.user)
-    # projects = [{
-    #     'title': 'Project Title1',
-    #     'description': 'Project Description1',
-    #     'goal': 1000,
-    #     'current_amount': 500,
-    #     'end_date': '2023-01-01',
-    #     'status': 'active'
-    # }, {
-    #     'title': 'Project Title2',
-    #     'description': 'Project Description2',
-    #     'goal': 2000,
-    #     'current_amount': 1500,
-    #     'end_date': '2023-01-01',
-    #     'status': 'completed'
-    # }]
     return render(request, 'users/projects_list.html', {'projects': projects})
 
 # @login_required
 
 
 def user_donations(request):
-
-    #     donations = UserDonation.objects.filter(user=request.user).select_related('project')
-    donations = [{
-        'amount': 100,
-        'project': {
-            'title': 'Project Title1',
-        },
-        'date': '2023-01-01'
-    }, {
-        'amount': 100,
-        'project': {
-            'title': 'Project Title2',
-        },
-        'date': '2023-01-01'
-    }]
+    donations = Donation.objects.filter(user=request.user).select_related('project')
     return render(request, 'users/donations_list.html', {'donations': donations})
