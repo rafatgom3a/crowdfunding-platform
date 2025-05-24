@@ -20,7 +20,6 @@ urlpatterns = [
     path('<int:pk>/update/', ProjectUpdateView.as_view(), name='update'),
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='delete'),
     path('category/<int:category_id>/', projects_by_category, name='projects_by_category'),
-    path('latest/', views.LatestProjectsView.as_view(), name='latest'),
 ]
 
 

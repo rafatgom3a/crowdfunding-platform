@@ -16,9 +16,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from categories.models import Category
 
 def home_view(request):
+    featured_projects = Project.objects.filter(is_active=True, featuredproject__isnull=False).order_by('-start_time')[:5]
     categories = Category.objects.all() 
     context = {
         'title': 'Homepage',
+        'featured_projects': featured_projects,
         'categories': categories,
     }
     return render(request, 'projects/home.html', context)
@@ -127,3 +129,10 @@ class LatestProjectsView(ListView):
     template_name = 'projects/latest_projects.html'
     context_object_name = 'projects'
     queryset = Project.objects.filter(is_active=True).order_by('-start_time')[:5]
+
+
+class FeaturedProjectsView(ListView):
+    model = Project
+    template_name = 'projects/featured_projects.html'
+    context_object_name = 'projects'
+    queryset = Project.objects.filter(is_active=True, featuredproject__isnull=False).order_by('-start_time')[:5]
