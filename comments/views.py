@@ -14,7 +14,7 @@ def add_comment(request, project_id):
             comment.user = request.user
             comment.project = project
             comment.save()
-            return redirect('projects:project_detail', project_id=project.id)
+            return redirect('projects:detail', pk=project.id)
     else:
         form = CommentForm()
     return render(request, 'comments/comment_form.html', {'form': form, 'project': project})
@@ -25,5 +25,5 @@ def delete_comment(request, comment_id):
     project_id = comment.project.id
     if request.method == 'POST':
         comment.delete()
-        return redirect('projects:project_detail', project_id=project_id)
+        return redirect('projects:detail', pk=project_id)
     return render(request, 'comments/delete_comment_confirm.html', {'comment': comment, 'project_id': project_id})
