@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Add Comment to {{ project.title }}</h3>
+    <form method="post" action="{% url 'interactions:add_comment' project.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+        <a href="{% url 'projects:project_detail' project.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
