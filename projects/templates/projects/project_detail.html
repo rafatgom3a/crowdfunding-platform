@@ -26,8 +26,21 @@
       <ul class="list-group">
         <li class="list-group-item"><strong>Start Time:</strong> {{ object.start_time|date:"M d, Y H:i" }}</li>
         <li class="list-group-item"><strong>End Time:</strong> {{ object.end_time|date:"M d, Y H:i" }}</li>
-        <li class="list-group-item">
-          <strong>Average Rating:</strong> {{ object.average_rating }} <i class="bi bi-star-fill text-warning"></i>
+        <li class="list-group-item" id="rating-display">
+          <strong>Average Rating:</strong> 
+          <span id="avg-rating">{{ object.average_rating }}</span>
+          <div class="d-inline-block" id="avg-rating-stars">
+            {% for i in "12345" %}
+              {% if forloop.counter <= object.average_rating %}
+                <i class="bi bi-star-fill text-warning"></i>
+              {% elif forloop.counter <= object.average_rating|add:0.5 %}
+                <i class="bi bi-star-half text-warning"></i>
+              {% else %}
+                <i class="bi bi-star text-warning"></i>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <span id="rating-count">({{ rating_count }} ratings)</span>
         </li>
       </ul>
     </div>
@@ -54,6 +67,31 @@
       <div class="mb-4">
         <a href="{% url 'donations:donate' object.id %}" class="btn btn-success">Donate</a>
       </div>
+      
+      <!-- Rating Section - Stars Only, With Delete Option -->
+      <div class="mb-4" id="rating-section">
+          <h4>Rate this project</h4>
+          <div class="star-rating">
+              <form id="rating-form" method="post" action="{% url 'projects:rate_project' object.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="value" id="rating-value" value="{{ user_rating|default:0 }}">
+                  <div class="rating-stars">
+                      {% for i in "12345" %}
+                      <i class="bi bi-star{% if user_rating and forloop.counter <= user_rating %}-fill{% endif %} text-warning rating-star"
+                         data-value="{{ forloop.counter }}"></i>
+                      {% endfor %}
+                  </div>
+              </form>
+              {% if user_rating %}
+              <p class="mt-2">Your current rating: <span id="user-rating-display">{{ user_rating }}</span> stars
+                  <button id="delete-rating" class="btn btn-sm btn-outline-danger ms-2">Delete Rating</button>
+              </p>
+              {% else %}
+              <p class="mt-2 text-muted">Click on a star to rate</p>
+              {% endif %}
+          </div>
+      </div>
+      
       <div class="container mt-4">
         <h3>Add Comment to {{ object.title }}</h3>
         <form method="post" action="{% url 'comments:add_comment' project.id %}">
@@ -61,7 +99,7 @@
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">Post Comment</button>
         </form>
-    </div>
+      </div>
     {% endif %}
   {% endif %}
 
@@ -94,5 +132,143 @@
     </ul>
   </div>
 </div>
+
+<script>
+    const stars = document.querySelectorAll('.rating-star');
+    const ratingValue = document.getElementById('rating-value');
+    const ratingForm = document.getElementById('rating-form');
+    const userRatingDisplay = document.getElementById('user-rating-display');
+    const deleteRatingBtn = document.getElementById('delete-rating');
+    
+    stars.forEach(star => {
+        star.addEventListener('mouseover', function() {
+            const value = parseInt(this.dataset.value);
+            highlightStars(value);
+        });
+        
+        star.addEventListener('mouseout', function() {
+            const currentValue = parseInt(ratingValue.value) || 0;
+            highlightStars(currentValue);
+        });
+        
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            ratingValue.value = value;
+            submitRating(value);
+        });
+    });
+    
+    if (deleteRatingBtn) {
+        deleteRatingBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            deleteRating();
+        });
+    }
+    
+    function highlightStars(value) {
+        stars.forEach(star => {
+            const starValue = parseInt(star.dataset.value);
+            if (starValue <= value) {
+                star.classList.remove('bi-star');
+                star.classList.add('bi-star-fill');
+            } else {
+                star.classList.remove('bi-star-fill');
+                star.classList.add('bi-star');
+            }
+        });
+    }
+    
+    function submitRating(value) {
+        const formData = new FormData(ratingForm);
+        
+        fetch(ratingForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('avg-rating').textContent = data.average_rating;
+                document.getElementById('rating-count').textContent = `(${data.rating_count} ratings)`;
+                
+                if (!userRatingDisplay) {
+                    const ratingSection = document.getElementById('rating-section');
+                    const paragraph = document.createElement('p');
+                    paragraph.classList.add('mt-2');
+                    paragraph.innerHTML = `Your current rating: <span id="user-rating-display">${data.user_rating}</span> stars
+                        <button id="delete-rating" class="btn btn-sm btn-outline-danger ms-2">Delete Rating</button>`;
+                    ratingSection.querySelector('.star-rating').appendChild(paragraph);
+                    
+                    document.getElementById('delete-rating').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        deleteRating();
+                    });
+                } else {
+                    userRatingDisplay.textContent = data.user_rating;
+                }
+                
+                updateAverageRatingStars(data.average_rating);
+            } else {
+                console.error('Error submitting rating:', data.errors || data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    // Delete rating via AJAX
+    function deleteRating() {
+        fetch(ratingForm.action, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('avg-rating').textContent = data.average_rating;
+                document.getElementById('rating-count').textContent = `(${data.rating_count} ratings)`;
+                
+                const ratingSection = document.getElementById('rating-section');
+                const ratingParagraph = ratingSection.querySelector('p.mt-2');
+                ratingParagraph.innerHTML = '<p class="mt-2 text-muted">Click on a star to rate</p>';
+                
+                ratingValue.value = 0;
+                
+                highlightStars(0);
+                
+                updateAverageRatingStars(data.average_rating);
+            } else {
+                console.error('Error deleting rating:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function updateAverageRatingStars(avgRating) {
+        const starsContainer = document.getElementById('avg-rating-stars');
+        starsContainer.innerHTML = '';
+        
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('i');
+            star.classList.add('bi', 'text-warning', 'me-1');
+            
+            if (i <= Math.floor(avgRating)) {
+                star.classList.add('bi-star-fill');
+            } else if (i <= Math.floor(avgRating) + 0.5) {
+                star.classList.add('bi-star-half');
+            } else {
+                star.classList.add('bi-star');
+            }
+            
+            starsContainer.appendChild(star);
+        }
+    }
+</script>
 {% endblock %}
 

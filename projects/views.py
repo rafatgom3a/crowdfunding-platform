@@ -30,6 +30,10 @@ from django import forms
 from .models import Project, ProjectImage
 from .forms import ProjectForm, ProjectImageFormSet
 from comments.forms import CommentForm
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Project, ProjectImage, Rating
+from .forms import ProjectForm, ProjectImageFormSet, RatingForm
 
 
 class ProjectForm(forms.ModelForm):
@@ -102,6 +106,19 @@ class ProjectDetailView(DetailView):
         ).exclude(id=current_project.id).distinct()[:4]
         context["user"] = self.request.user   # Get the logged-in user
         context["form"] = CommentForm()
+        
+        # Add rating form and user's existing rating if available
+        context["rating_form"] = RatingForm()
+        context["rating_count"] = current_project.ratings.count()
+        
+        # Check if user has already rated this project
+        if self.request.user.is_authenticated:
+            try:
+                user_rating = Rating.objects.get(project=current_project, user=self.request.user)
+                context["user_rating"] = user_rating.value
+            except Rating.DoesNotExist:
+                context["user_rating"] = None
+                
         return context
 
 class ProjectListView(ListView):
@@ -127,3 +144,48 @@ class LatestProjectsView(ListView):
     template_name = 'projects/latest_projects.html'
     context_object_name = 'projects'
     queryset = Project.objects.filter(is_active=True).order_by('-start_time')[:5]
+
+
+@login_required
+def rate_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    
+    # Handle DELETE request to remove a rating
+    if request.method == 'DELETE':
+        try:
+            rating = Rating.objects.get(project=project, user=request.user)
+            rating.delete()
+            return JsonResponse({
+                'success': True,
+                'average_rating': project.average_rating(),
+                'rating_count': project.ratings.count(),
+                'user_rating': 0
+            })
+        except Rating.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'No rating found to delete'}, status=404)
+    
+    if request.method == 'POST':
+        # Check if user has already rated this project
+        try:
+            rating = Rating.objects.get(project=project, user=request.user)
+            form = RatingForm(request.POST, instance=rating)
+        except Rating.DoesNotExist:
+            form = RatingForm(request.POST)
+            
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.project = project
+            rating.user = request.user
+            rating.save()
+            
+            # Return JSON response with updated rating info
+            return JsonResponse({
+                'success': True,
+                'average_rating': project.average_rating(),
+                'rating_count': project.ratings.count(),
+                'user_rating': rating.value
+            })
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
