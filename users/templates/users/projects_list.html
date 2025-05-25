@@ -16,7 +16,8 @@
     <div class="col">
       <div class="card h-100 shadow-sm">
         {% if project.project_images.all %}
-        <img src="{{ project.project_images.all.0.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ project.title }}">
+        <img src="{{ project.project_images.all.0.image.url }}" class="card-img-top"
+          style="height: 200px; object-fit: cover;" alt="{{ project.title }}">
         {% endif %}
         <div class="card-body">
           <h5 class="card-title">{{ project.title }}</h5>
@@ -27,9 +28,9 @@
           <p class="mb-1">
             <strong>Tags:</strong>
             {% for tag in project.tags.all %}
-              <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+            <span class="badge bg-secondary me-1">{{ tag.name }}</span>
             {% empty %}
-              <span class="text-muted">No tags</span>
+            <span class="text-muted">No tags</span>
             {% endfor %}
           </p>
 
@@ -46,9 +47,9 @@
           <p class="mb-0">
             <strong>Status:</strong>
             {% if project.is_active %}
-              <span class="text-success">Active</span>
+            <span class="text-success">Active</span>
             {% else %}
-              <span class="text-danger">Inactive</span>
+            <span class="text-danger">Inactive</span>
             {% endif %}
           </p>
         </div>
@@ -56,7 +57,10 @@
           <a href="{% url 'projects:detail' project.id %}" class="btn btn-sm btn-outline-primary">View</a>
           <div>
             <a href="{% url 'projects:update' project.id %}" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
+            <!-- <a href="{% url 'projects:delete' project.id %}" class="btn btn-sm btn-outline-danger">Delete</a> -->
+            {% if project.can_delete %}
             <a href="{% url 'projects:delete' project.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -64,7 +68,7 @@
     {% endfor %}
   </div>
   {% else %}
-    <div class="alert alert-warning mt-4">No projects found.</div>
+  <div class="alert alert-warning mt-4">No projects found.</div>
   {% endif %}
 </section>
 {% endblock %}

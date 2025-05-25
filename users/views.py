@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -388,6 +389,14 @@ def resend_activation_view(request):
 @login_required
 def user_projects(request):
     projects = Project.objects.filter(created_by=request.user)
+    for project in projects:
+        if request.user.is_authenticated:
+            project.can_delete = (
+                project.created_by == request.user and
+                project.current_amount <= project.target_amount * Decimal('0.25')
+            )
+        else:
+            project.can_delete = False
     return render(request, 'users/projects_list.html', {'projects': projects})
 
 # @login_required
