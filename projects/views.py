@@ -198,9 +198,13 @@ class ProjectListView(ListView):
         # For each project, add can_delete flag
         if user.is_authenticated:
             for project in context['object_list']:
-                # User can delete if they are creator and current_amount <= 25% of target
-                project.can_delete = (user == project.created_by and
-                                      project.current_amount <= project.target_amount * Decimal('0.25'))
+                # Superusers can delete any project at any time
+                if user.is_superuser:
+                    project.can_delete = True
+                # Normal users can delete only their own projects if <= 25% funded
+                else:
+                    project.can_delete = (user == project.created_by and
+                                        project.current_amount <= project.target_amount * Decimal('0.25'))
         else:
             for project in context['object_list']:
                 project.can_delete = False
@@ -214,12 +218,17 @@ def projects_by_category(request, category_id):
     projects = Project.objects.filter(category=category)
 
     user = request.user
+
     for project in projects:
         if user.is_authenticated:
-            project.can_delete = (user == project.created_by and
-                                  project.current_amount <= project.target_amount * Decimal('0.25'))
+            if user.is_superuser:
+                project.can_delete = True
+            else:
+                project.can_delete = (user == project.created_by and
+                                    project.current_amount <= project.target_amount * Decimal('0.25'))
         else:
             project.can_delete = False
+
 
     return render(request, 'projects/projects_by_category.html', {
         'category': category,
