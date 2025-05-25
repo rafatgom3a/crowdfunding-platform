@@ -13,6 +13,7 @@ from django.conf import settings
 from decouple import config
 
 from projects.models import Project
+from donations.models import Donation
 
 
 from .models import User, UserProfile
