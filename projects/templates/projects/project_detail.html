@@ -2,6 +2,12 @@
 {% block content %}
 <div class="container my-4">
   <h1 class="mb-3">{{ object.title }}</h1>
+
+    {% if user.is_authenticated and user != object.created_by and not user.is_staff %}
+    <div class="mb-3">
+      <a href="{% url 'projects:report_content' 'project' object.id %}" class="btn btn-warning btn-sm">Report as Inappropriate</a>
+    </div>
+  {% endif %}
   
   <p class="lead">{{ object.description }}</p>
 
@@ -74,6 +80,9 @@
           <p>{{ comment.content }}</p>
           {% if user.is_authenticated and user == comment.user %}
             <a href="{% url 'comments:delete_comment' comment.id %}" class="btn btn-danger btn-sm">Delete</a>
+          {% endif %}
+          {% if user.is_authenticated and user != comment.user and not user.is_staff %}
+              <a href="{% url 'projects:report_content' 'comment' comment.id %}" class="btn btn-warning btn-sm">Report as Inappropriate</a>
           {% endif %}
         </li>
       {% empty %}

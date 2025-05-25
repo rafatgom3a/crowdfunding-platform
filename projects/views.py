@@ -27,9 +27,12 @@ from django.views.generic import CreateView, UpdateView, DeleteView, DetailView,
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
-from .models import Project, ProjectImage
+from .models import Project, ProjectImage, Report
 from .forms import ProjectForm, ProjectImageFormSet
 from comments.forms import CommentForm
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.auth.decorators import login_required
 
 
 class ProjectForm(forms.ModelForm):
@@ -121,3 +124,20 @@ def projects_by_category(request, category_id):
         'category': category,
         'projects': projects
     })
+
+
+@login_required
+def report_content(request, content_type, object_id):
+    content_type_obj = get_object_or_404(ContentType, model=content_type)
+    content_object = get_object_or_404(content_type_obj.model_class(), id=object_id)
+    
+    if Report.objects.filter(user=request.user, content_type=content_type_obj, object_id=object_id).exists():
+        pass
+    else:
+        Report.objects.create(
+            user=request.user,
+            content_type=content_type_obj,
+            object_id=object_id
+        )
+    
+    return redirect('projects:detail', pk=content_object.id if content_type == 'project' else content_object.project.id)

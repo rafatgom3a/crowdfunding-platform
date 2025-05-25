@@ -4,6 +4,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from categories.models import Category
 from django.utils import timezone
 from decimal import Decimal
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -55,3 +57,23 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"{self.project.title} - {self.value} stars"
+
+class Report(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['content_type', 'object_id']),
+        ]
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'content_type', 'object_id'], name='unique_user_report')
+        ]
+
+    def __str__(self):
+        return f"Report by {self.user.email} on {self.content_type.name} {self.object_id}"
