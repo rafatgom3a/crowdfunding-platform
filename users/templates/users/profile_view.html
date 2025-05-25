@@ -50,12 +50,39 @@
             <div class="card-header">
                 <h4>My Donations</h4>
             </div>
-            <div class="card-body">
+            <!-- <div class="card-body"> -->
                 <!-- Placeholder for user's donations -->
                 <!-- <p>Your donations will be listed here.</p> -->
                 <!-- {# Loop through user.donations_made or similar relation #} -->
-                 <a href="{% url 'users:user_donations' %}">see donations</a>
-            </div>
+                 <!-- <a href="{% url 'users:user_donations' %}">see donations</a> -->
+                
+                 
+            <!-- </div> -->
+             <div class="card-body">
+                {% if user.donations.exists %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Project</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donation in user.donations.all %}
+                                <tr>
+                                    
+                                    <td><a href="{% url 'projects:detail' donation.project.id %}">{{ donation.project.title }}</a></td>
+                                    <td>${{ donation.amount }}</td>
+                                    <td>{{ donation.created_at|date:"F d, Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No donations made yet.</p>
+                {% endif %}
+             </div>
         </div>
     </div>
 </div>
