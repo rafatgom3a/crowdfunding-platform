@@ -4,10 +4,17 @@
   <h1 class="mb-3">{{ object.title }}</h1>
 
     {% if user.is_authenticated and user != object.created_by and not user.is_staff %}
-    <div class="mb-3">
-      <a href="{% url 'projects:report_content' 'project' object.id %}" class="btn btn-warning btn-sm">Report as Inappropriate</a>
-    </div>
+      <div class="mb-3">
+        {% if not user_has_reported_project %}
+          <a href="{% url 'projects:report_content' 'project' object.id %}" class="btn btn-warning btn-sm">Report as Inappropriate</a>
+        {% else %}
+          <div class="alert alert-info alert-sm" role="alert">
+            <i class="bi bi-info-circle"></i> You have already reported this project as inappropriate.
+          </div>
+        {% endif %}
+      </div>
   {% endif %}
+
   
   <p class="lead">{{ object.description }}</p>
 
@@ -126,7 +133,13 @@
             <a href="{% url 'comments:delete_comment' comment.id %}" class="btn btn-danger btn-sm">Delete</a>
           {% endif %}
           {% if user.is_authenticated and user != comment.user and not user.is_staff %}
+            {% if comment.id not in reported_comment_ids %}
               <a href="{% url 'projects:report_content' 'comment' comment.id %}" class="btn btn-warning btn-sm">Report as Inappropriate</a>
+            {% else %}
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> Already reported
+              </small>
+            {% endif %}
           {% endif %}
         </li>
       {% empty %}

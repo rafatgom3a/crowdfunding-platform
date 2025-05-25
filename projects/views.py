@@ -172,7 +172,27 @@ class ProjectDetailView(DetailView):
                 context["user_rating"] = user_rating.value
             except Rating.DoesNotExist:
                 context["user_rating"] = None
-                
+        
+
+        if self.request.user.is_authenticated:
+            project_content_type = ContentType.objects.get_for_model(Project)
+            context["user_has_reported_project"] = Report.objects.filter(
+                user=self.request.user,
+                content_type=project_content_type,
+                object_id=current_project.id
+            ).exists()
+            
+            # Check if user has reported each comment
+            comment_content_type = ContentType.objects.get_for_model(current_project.comments.model)
+            reported_comment_ids = Report.objects.filter(
+                user=self.request.user,
+                content_type=comment_content_type
+            ).values_list('object_id', flat=True)
+            context["reported_comment_ids"] = list(reported_comment_ids)
+        else:
+            context["user_has_reported_project"] = False
+            context["reported_comment_ids"] = []
+
 
         # New: logic to enable/disable delete button
         if user.is_authenticated:
