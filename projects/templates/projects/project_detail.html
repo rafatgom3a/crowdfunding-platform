@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container my-4">
   <h1 class="mb-3">{{ object.title }}</h1>
-  
+
   <p class="lead">{{ object.description }}</p>
 
   <div class="row mb-3">
@@ -12,9 +12,9 @@
         <li class="list-group-item">
           <strong>Tags:</strong>
           {% for tag in object.tags.all %}
-            <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+          <span class="badge bg-secondary me-1">{{ tag.name }}</span>
           {% empty %}
-            <span>No tags</span>
+          <span>No tags</span>
           {% endfor %}
         </li>
         <li class="list-group-item"><strong>Target Amount:</strong> ${{ object.target_amount }}</li>
@@ -50,72 +50,78 @@
     <h3>Images</h3>
     <div class="d-flex flex-wrap gap-3">
       {% for image in object.project_images.all %}
-        <img src="{{ image.image.url }}" alt="Project Image {{ forloop.counter }}" class="img-thumbnail" style="width: 150px; height: auto;">
+      <img src="{{ image.image.url }}" alt="Project Image {{ forloop.counter }}" class="img-thumbnail"
+        style="width: 150px; height: auto;">
       {% empty %}
-        <p>No images available.</p>
+      <p>No images available.</p>
       {% endfor %}
     </div>
   </div>
 
   {% if user.is_authenticated %}
-    {% if user == object.created_by or user.is_staff %}
-      <div class="mb-4">
-        <a href="{% url 'projects:update' object.id %}" class="btn btn-primary me-2">Edit</a>
-        <a href="{% url 'projects:delete' object.id %}" class="btn btn-danger">Delete</a>
-      </div>
+  {% if user == object.created_by or user.is_staff %}
+  <div class="mb-4">
+    <a href="{% url 'projects:update' object.id %}" class="btn btn-primary me-2">Edit</a>
+
+    {% if can_delete %}
+    <a href="{% url 'projects:delete' project.pk %}">Delete Project</a>
     {% else %}
-      <div class="mb-4">
-        <a href="{% url 'donations:donate' object.id %}" class="btn btn-success">Donate</a>
-      </div>
-      
-      <!-- Rating Section - Stars Only, With Delete Option -->
-      <div class="mb-4" id="rating-section">
-          <h4>Rate this project</h4>
-          <div class="star-rating">
-              <form id="rating-form" method="post" action="{% url 'projects:rate_project' object.id %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="value" id="rating-value" value="{{ user_rating|default:0 }}">
-                  <div class="rating-stars">
-                      {% for i in "12345" %}
-                      <i class="bi bi-star{% if user_rating and forloop.counter <= user_rating %}-fill{% endif %} text-warning rating-star"
-                         data-value="{{ forloop.counter }}"></i>
-                      {% endfor %}
-                  </div>
-              </form>
-              {% if user_rating %}
-              <p class="mt-2">Your current rating: <span id="user-rating-display">{{ user_rating }}</span> stars
-                  <button id="delete-rating" class="btn btn-sm btn-outline-danger ms-2">Delete Rating</button>
-              </p>
-              {% else %}
-              <p class="mt-2 text-muted">Click on a star to rate</p>
-              {% endif %}
-          </div>
-      </div>
-      
-      <div class="container mt-4">
-        <h3>Add Comment to {{ object.title }}</h3>
-        <form method="post" action="{% url 'comments:add_comment' project.id %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Post Comment</button>
-        </form>
-      </div>
+    <p>Deletion is restricted for this project.</p>
     {% endif %}
+  </div>
+  {% else %}
+  <div class="mb-4">
+    <a href="{% url 'donations:donate' object.id %}" class="btn btn-success">Donate</a>
+  </div>
+      
+  <!-- Rating Section - Stars Only, With Delete Option -->
+  <div class="mb-4" id="rating-section">
+    <h4>Rate this project</h4>
+    <div class="star-rating">
+      <form id="rating-form" method="post" action="{% url 'projects:rate_project' object.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="value" id="rating-value" value="{{ user_rating|default:0 }}">
+        <div class="rating-stars">
+          {% for i in "12345" %}
+          <i class="bi bi-star{% if user_rating and forloop.counter <= user_rating %}-fill{% endif %} text-warning rating-star"
+             data-value="{{ forloop.counter }}"></i>
+          {% endfor %}
+        </div>
+      </form>
+      {% if user_rating %}
+      <p class="mt-2">Your current rating: <span id="user-rating-display">{{ user_rating }}</span> stars
+          <button id="delete-rating" class="btn btn-sm btn-outline-danger ms-2">Delete Rating</button>
+      </p>
+      {% else %}
+      <p class="mt-2 text-muted">Click on a star to rate</p>
+      {% endif %}
+    </div>
+  </div>
+      
+  <div class="container mt-4">
+    <h3>Add Comment to {{ object.title }}</h3>
+    <form method="post" action="{% url 'comments:add_comment' project.id %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+  </div>
+  {% endif %}
   {% endif %}
 
   <div class="container mt-4">
     <h3>Comments</h3>
     <ul class="list-group">
       {% for comment in object.comments.all %}
-        <li class="list-group-item">
-          <strong>{{ comment.user.first_name }}</strong> ({{ comment.created_at|date:"M d, Y H:i" }}):
-          <p>{{ comment.content }}</p>
-          {% if user.is_authenticated and user == comment.user %}
-            <a href="{% url 'comments:delete_comment' comment.id %}" class="btn btn-danger btn-sm">Delete</a>
-          {% endif %}
-        </li>
+      <li class="list-group-item">
+        <strong>{{ comment.user.first_name }}</strong> ({{ comment.created_at|date:"M d, Y H:i" }}):
+        <p>{{ comment.content }}</p>
+        {% if user.is_authenticated and user == comment.user %}
+        <a href="{% url 'comments:delete_comment' comment.id %}" class="btn btn-danger btn-sm">Delete</a>
+        {% endif %}
+      </li>
       {% empty %}
-        <li class="list-group-item">No comments yet.</li>
+      <li class="list-group-item">No comments yet.</li>
       {% endfor %}
     </ul>
   </div>
@@ -123,11 +129,11 @@
     <h3>Similar Projects</h3>
     <ul class="list-group">
       {% for proj in similar_projects %}
-        <li class="list-group-item">
-          <a href="{% url 'projects:detail' proj.id %}">{{ proj.title }}</a>
-        </li>
+      <li class="list-group-item">
+        <a href="{% url 'projects:detail' proj.id %}">{{ proj.title }}</a>
+      </li>
       {% empty %}
-        <li class="list-group-item">No similar projects found.</li>
+      <li class="list-group-item">No similar projects found.</li>
       {% endfor %}
     </ul>
   </div>
