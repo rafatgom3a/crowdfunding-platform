@@ -5,7 +5,7 @@
 from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
 from comments.forms import CommentForm
 from .forms import ProjectForm, ProjectImageFormSet
-from .models import Project, ProjectImage
+from .models import Project, ProjectImage, Tag
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -70,11 +70,16 @@ from .models import Project, ProjectImage, Rating
 from .forms import ProjectForm, ProjectImageFormSet, RatingForm
 
 
-class ProjectForm(forms.ModelForm):
-    class Meta:
-        model = Project
-        fields = ['title', 'description', 'category',
-                  'tags', 'target_amount', 'end_time']
+# class ProjectForm(forms.ModelForm):
+#     class Meta:
+#         model = Project
+#         fields = ['title', 'description', 'category',
+#                   'tags', 'target_amount', 'end_time']
+
+def tag_autocomplete(request):
+    query = request.GET.get('query', '')
+    tags = Tag.objects.filter(name__icontains=query).values_list('name', flat=True)
+    return JsonResponse(list(tags), safe=False)
 
 
 class ProjectCreateView(LoginRequiredMixin, CreateView):
