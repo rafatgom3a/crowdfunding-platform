@@ -59,11 +59,13 @@ from django.views.generic import CreateView, UpdateView, DeleteView, DetailView,
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
-from .models import Project, ProjectImage
+from .models import Project, ProjectImage, Report
 from .forms import ProjectForm, ProjectImageFormSet
 from comments.forms import CommentForm
-from django.http import JsonResponse
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from .models import Project, ProjectImage, Rating
 from .forms import ProjectForm, ProjectImageFormSet, RatingForm
 
@@ -170,7 +172,27 @@ class ProjectDetailView(DetailView):
                 context["user_rating"] = user_rating.value
             except Rating.DoesNotExist:
                 context["user_rating"] = None
-                
+        
+
+        if self.request.user.is_authenticated:
+            project_content_type = ContentType.objects.get_for_model(Project)
+            context["user_has_reported_project"] = Report.objects.filter(
+                user=self.request.user,
+                content_type=project_content_type,
+                object_id=current_project.id
+            ).exists()
+            
+            # Check if user has reported each comment
+            comment_content_type = ContentType.objects.get_for_model(current_project.comments.model)
+            reported_comment_ids = Report.objects.filter(
+                user=self.request.user,
+                content_type=comment_content_type
+            ).values_list('object_id', flat=True)
+            context["reported_comment_ids"] = list(reported_comment_ids)
+        else:
+            context["user_has_reported_project"] = False
+            context["reported_comment_ids"] = []
+
 
         # New: logic to enable/disable delete button
         if user.is_authenticated:
@@ -235,6 +257,22 @@ def projects_by_category(request, category_id):
         'projects': projects
     })
 
+
+@login_required
+def report_content(request, content_type, object_id):
+    content_type_obj = get_object_or_404(ContentType, model=content_type)
+    content_object = get_object_or_404(content_type_obj.model_class(), id=object_id)
+    
+    if Report.objects.filter(user=request.user, content_type=content_type_obj, object_id=object_id).exists():
+        pass
+    else:
+        Report.objects.create(
+            user=request.user,
+            content_type=content_type_obj,
+            object_id=object_id
+        )
+    
+    return redirect('projects:detail', pk=content_object.id if content_type == 'project' else content_object.project.id)
 class LatestProjectsView(ListView):
     model = Project
     template_name = 'projects/latest_projects.html'

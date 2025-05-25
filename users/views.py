@@ -14,6 +14,7 @@ from decouple import config
 
 from donations.models import Donation
 from projects.models import Project
+from donations.models import Donation
 
 
 from .models import User, UserProfile
