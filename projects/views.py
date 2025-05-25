@@ -1,7 +1,3 @@
-# from django.shortcuts import render
-# from django.http import HttpResponse
-
-# def home_view(request):
 from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
 from comments.forms import CommentForm
 from .forms import ProjectForm, ProjectImageFormSet
@@ -9,21 +5,25 @@ from .models import Project, ProjectImage, Tag
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-# For now, let's return a simple HttpResponse
-# Later, you'll render a template here
-# return render(request, 'projects/home.html', {'title': 'Homepage'})
-# Or, for a very basic test:
-# return HttpResponse("<h1>Welcome to the Crowdfunding Platform Home!</h1>")
-# Create your views here.
-
-
 from decimal import Decimal
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from categories.models import Category
 from django.db.models import Avg
 from django.db.models import Q
-
+from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django import forms
+from .models import Project, ProjectImage, Report
+from .forms import ProjectForm, ProjectImageFormSet
+from comments.forms import CommentForm
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import Project, ProjectImage, Rating
+from .forms import ProjectForm, ProjectImageFormSet, RatingForm
 
 
 
@@ -55,26 +55,6 @@ def home_view(request):
     }
     return render(request, 'projects/home.html', context)
 
-from django.views.generic import CreateView, UpdateView, DeleteView, DetailView, ListView
-from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django import forms
-from .models import Project, ProjectImage, Report
-from .forms import ProjectForm, ProjectImageFormSet
-from comments.forms import CommentForm
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from .models import Project, ProjectImage, Rating
-from .forms import ProjectForm, ProjectImageFormSet, RatingForm
-
-
-# class ProjectForm(forms.ModelForm):
-#     class Meta:
-#         model = Project
-#         fields = ['title', 'description', 'category',
-#                   'tags', 'target_amount', 'end_time']
 
 def tag_autocomplete(request):
     query = request.GET.get('query', '')
@@ -88,10 +68,6 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/project_form.html"
     success_url = reverse_lazy("projects:list")
 
-    # def form_valid(self, form):
-    #     # Assign the logged-in user before saving the form
-    #     form.instance.created_by = self.request.user
-    #     return super().form_valid(form)
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -328,8 +304,11 @@ def rate_project(request, project_id):
             return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     
     return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+
+
 class FeaturedProjectsView(ListView):
     model = Project
     template_name = 'projects/featured_projects.html'
     context_object_name = 'projects'
     queryset = Project.objects.filter(is_active=True, featuredproject__isnull=False).order_by('-start_time')[:5]
+

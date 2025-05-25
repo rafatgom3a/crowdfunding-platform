@@ -2,40 +2,111 @@
 {% block content %}
 
 <style>
+  /* Container for tags input */
   .tags-input {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    padding: 0.375rem 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    min-height: 38px;
+    padding: 0.4rem 0.75rem;
+    border: 1.5px solid #ced4da;
+    border-radius: 0.4rem;
+    min-height: 42px;
     cursor: text;
+    background-color: #f8f9fa;
+    transition: border-color 0.3s ease;
+    position: relative;
   }
+  .tags-input:focus-within {
+    border-color: #0d6efd;
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.5);
+    background-color: white;
+  }
+
+  /* Input field inside tags */
   .tags-input input {
     border: none;
     flex: 1;
-    min-width: 120px;
-    padding: 0.2rem;
+    min-width: 140px;
+    padding: 0.3rem 0.5rem;
     font-size: 1rem;
+    background: transparent;
+    outline-offset: 2px;
+    outline-color: #0d6efd;
+  }
+  .tags-input input::placeholder {
+    color: #6c757d;
   }
   .tags-input input:focus {
     outline: none;
   }
+
+  /* Each tag bubble */
   .tags-input .tag {
     background-color: #0d6efd;
     color: white;
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-    margin-right: 0.3rem;
-    margin-bottom: 0.2rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 1rem;
+    margin-right: 0.4rem;
+    margin-bottom: 0.3rem;
     display: flex;
     align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    user-select: none;
+    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.3);
+    transition: background-color 0.3s ease;
   }
+  .tags-input .tag:hover {
+    background-color: #0843c7;
+  }
+
+  /* Remove tag "x" button */
   .tags-input .tag .remove-tag {
     cursor: pointer;
-    margin-left: 0.5rem;
+    margin-left: 0.6rem;
     font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+  .tags-input .tag .remove-tag:hover {
+    color: #ffc107;
+  }
+
+  /* Suggestions dropdown container */
+  .tags-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.2rem;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.3rem;
+    max-height: 180px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1050;
+    font-size: 0.95rem;
+  }
+  /* Each suggestion item */
+  .tags-suggestions div {
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  .tags-suggestions div:hover {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  /* Scrollbar styling for suggestions */
+  .tags-suggestions::-webkit-scrollbar {
+    width: 8px;
+  }
+  .tags-suggestions::-webkit-scrollbar-thumb {
+    background-color: #0d6efd;
+    border-radius: 4px;
   }
 </style>
 
@@ -97,93 +168,140 @@
   <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
+
 <script>
-  (function() {
-    const tagsInputDiv = document.getElementById('tags-input');
-    const hiddenInput = document.getElementById('hidden-tags');
+(function () {
+  const tagsInputDiv = document.getElementById('tags-input');
+  const hiddenInput = document.getElementById('hidden-tags');
 
-    // Internal tags array
-    let tags = [];
+  let tags = [];
+  let input;
 
-    // Utility: render tags in the div and update hidden input
-    function renderTags() {
-      tagsInputDiv.innerHTML = '';
-      tags.forEach((tag, index) => {
-        const tagElem = document.createElement('span');
-        tagElem.classList.add('tag');
-        tagElem.textContent = tag;
+  const suggestionsBox = document.createElement('div');
+  suggestionsBox.classList.add('tags-suggestions');
+  suggestionsBox.style.display = 'none';
+  suggestionsBox.style.position = 'absolute';
+  suggestionsBox.style.background = '#fff';
+  suggestionsBox.style.border = '1px solid #ced4da';
+  suggestionsBox.style.zIndex = 1000;
+  tagsInputDiv.appendChild(suggestionsBox);
 
-        const removeBtn = document.createElement('span');
-        removeBtn.classList.add('remove-tag');
-        removeBtn.innerHTML = '&times;';
-        removeBtn.setAttribute('data-index', index);
-        removeBtn.addEventListener('click', function(e) {
-          const i = parseInt(this.getAttribute('data-index'));
-          removeTag(i);
-        });
+  function renderTags() {
+    tagsInputDiv.innerHTML = '';
+    tags.forEach((tag, index) => {
+      const tagElem = document.createElement('span');
+      tagElem.classList.add('tag');
+      tagElem.textContent = tag;
 
-        tagElem.appendChild(removeBtn);
-        tagsInputDiv.appendChild(tagElem);
+      const removeBtn = document.createElement('span');
+      removeBtn.classList.add('remove-tag');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.setAttribute('data-index', index);
+      removeBtn.addEventListener('click', function () {
+        removeTag(parseInt(this.getAttribute('data-index')));
       });
 
-      // Add the input field
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.placeholder = 'Add tags (comma separated)';
-      input.addEventListener('keydown', handleInputKeyDown);
-      tagsInputDiv.appendChild(input);
-      input.focus();
+      tagElem.appendChild(removeBtn);
+      tagsInputDiv.appendChild(tagElem);
+    });
 
-      // Update hidden input with tags joined by comma
-      hiddenInput.value = tags.join(',');
-    }
+    input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Add tags...';
+    input.addEventListener('input', handleInputChange);
+    input.addEventListener('keydown', handleInputKeyDown);
+    tagsInputDiv.appendChild(input);
+    input.focus();
 
-    // Remove tag at index
-    function removeTag(index) {
-      tags.splice(index, 1);
-      renderTags();
-    }
+    hiddenInput.value = tags.join(',');
+    tagsInputDiv.appendChild(suggestionsBox);
+  }
 
-    // Add tag if valid and not duplicate
-    function addTag(tag) {
-      tag = tag.trim();
-      if (tag !== '' && !tags.includes(tag)) {
-        tags.push(tag);
-      }
-    }
 
-    // Handle keydown events for input
-    function handleInputKeyDown(e) {
-      if (['Comma'].includes(e.key) || e.key === ',') {
-        e.preventDefault();
-        const val = this.value.trim().replace(/,$/, '');
-        if (val) {
-          addTag(val);
-          this.value = '';
+  async function handleInputChange() {
+  const value = input.value.trim();
+  if (!value) {
+    suggestionsBox.style.display = 'none';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/tag-autocomplete/?query=${encodeURIComponent(value)}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const suggestions = await response.json();
+
+    if (suggestions.length > 0) {
+      suggestionsBox.innerHTML = '';
+      suggestions.forEach(tag => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.textContent = tag;
+        suggestionItem.addEventListener('click', () => {
+          addTag(tag);
+          input.value = '';
+          suggestionsBox.style.display = 'none';
           renderTags();
-        }
-      }
-      // Backspace removes last tag if input empty
-      else if (e.key === 'Backspace' && this.value === '') {
-        tags.pop();
+        });
+        suggestionsBox.appendChild(suggestionItem);
+      });
+      suggestionsBox.style.display = 'block';
+    } else {
+      suggestionsBox.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Autocomplete fetch error:', error);
+    suggestionsBox.style.display = 'none';
+  }
+}
+
+
+
+  function handleInputKeyDown(e) {
+    if (['Enter', 'Comma', ' '].includes(e.key)) {
+      e.preventDefault();
+      const val = input.value.trim().replace(/,$/, '');
+      if (val) {
+        addTag(val);
+        input.value = '';
+        suggestionsBox.style.display = 'none';
         renderTags();
       }
+    } else if (e.key === 'Backspace' && input.value === '') {
+      tags.pop();
+      renderTags();
     }
+  }
 
-    // Initialize tags from Django form initial value
-    const initialTagsString = "{{ form.tags.value|default_if_none:''|escapejs }}";
-    if (initialTagsString) {
-      tags = initialTagsString.split(',').map(t => t.trim()).filter(t => t.length > 0);
+  function addTag(tag) {
+    tag = tag.trim();
+    if (tag !== '' && !tags.includes(tag)) {
+      tags.push(tag);
     }
+  }
 
+  function removeTag(index) {
+    tags.splice(index, 1);
     renderTags();
+  }
 
-    // Focus input on container click
-    tagsInputDiv.addEventListener('click', () => {
-      const input = tagsInputDiv.querySelector('input');
-      if (input) input.focus();
-    });
-  })();
+  // Load existing tags
+  const initialTagsString = "{{ form.tags.value|default_if_none:''|escapejs }}";
+  if (initialTagsString) {
+    tags = initialTagsString.split(',').map(t => t.trim()).filter(t => t.length > 0);
+  }
+
+  renderTags();
+
+  tagsInputDiv.addEventListener('click', () => {
+    if (input) input.focus();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!tagsInputDiv.contains(e.target)) {
+      suggestionsBox.style.display = 'none';
+    }
+  });
+})();
 </script>
+
 
 {% endblock %}

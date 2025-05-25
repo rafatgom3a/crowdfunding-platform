@@ -25,7 +25,7 @@ urlpatterns = [
     path('latest/', views.LatestProjectsView.as_view(), name='latest'),
     path('<int:project_id>/rate/', views.rate_project, name='rate_project'),
     path('projects/<int:pk>/', views.ProjectDetailView.as_view(), name='project_detail'),
-    path('tags/autocomplete/', tag_autocomplete, name='tag_autocomplete'),
+    path('tag-autocomplete/', tag_autocomplete, name='tag-autocomplete'),
 ]
 
 
