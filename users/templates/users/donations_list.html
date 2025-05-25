@@ -3,6 +3,7 @@
 
 {% block title %}{{ user.first_name }}'s Profile - {{ block.super }}{% endblock %}
 
+
 {% block content %}
 <section class="container my-5">
     <h2 class="mb-4">{{ user.first_name }}'s Donations</h2>
@@ -13,7 +14,7 @@
             <li class="list-group-item">
                 Donated <strong>{{ donation.amount }}</strong> to 
                 <em>"{{ donation.project.title }}"</em> on 
-                <span class="text-muted">{{ donation.date }}</span>
+                <span class="text-muted">{{ donation.created_at|date:"F j, Y, g:i a" }}</span>
             </li>
             {% endfor %}
         </ul>
@@ -22,3 +23,4 @@
     {% endif %}
 </section>
 {% endblock %}
+
